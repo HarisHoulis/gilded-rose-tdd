@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.jetbrains.kotlin.jvm' version '1.6.0-RC'
+    id 'org.jetbrains.kotlin.jvm' version '1.8.10'
 }
 
 repositories {
@@ -17,18 +17,11 @@ dependencies {
 
 group = 'com.gildedrose'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '1.8'
 
 test {
     useJUnitPlatform()
 }
-compileKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
-}
-compileTestKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
+
+kotlin {
+    jvmToolchain(17)
 }
