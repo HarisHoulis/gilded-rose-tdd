@@ -16,7 +16,7 @@ private val handlebars = HandlebarsTemplates().HotReload("src/main/kotlin")
 
 fun routes(
     stock: List<Item>,
-    calendar: () -> LocalDate = { LocalDate.now() },
+    calendar: () -> LocalDate = LocalDate::now,
 ) = org.http4k.routing.routes(
     "/" bind Method.GET to { _ ->
         val now = calendar()
