@@ -1,5 +1,6 @@
 package com.gildedrose
 
+import io.kotest.matchers.shouldBe
 import org.http4k.core.Method.GET
 import org.http4k.core.Request
 import org.http4k.core.Status.Companion.OK
@@ -12,7 +13,6 @@ import org.junit.jupiter.api.io.TempDir
 import routesFor
 import java.io.File
 import java.time.Instant
-import java.time.LocalDate
 
 @ExtendWith(ApprovalTest::class)
 internal class ListStockTests {
@@ -20,20 +20,21 @@ internal class ListStockTests {
     @TempDir
     lateinit var dir: File
     private val stockFile by lazy { dir.resolve("stock.tsv") }
-    private val now = LocalDate.parse("2023-03-01")
+    private val routes by lazy { routesFor(stockFile) { march1 } }
 
     @Test
     fun `list stock`(approver: Approver) {
-        StockList(
-            Instant.now(),
-            listOf(
-                Item("banana", now.minusDays(1), 42u),
-                Item("kumquat", now.plusDays(1), 101u)
-            )
-        ).saveTo(stockFile)
+        standardStockList.saveTo(stockFile)
 
-        val routes = routesFor(stockFile) { now }
+        approver.assertApproved(routes(Request(GET, "/")), OK)
+    }
 
+    @Test
+    fun `list stock sees file updates`(approver: Approver) {
+        standardStockList.saveTo(stockFile)
+        routes(Request(GET, "/")).status shouldBe OK
+
+        StockList(Instant.now(), emptyList()).saveTo(stockFile)
         approver.assertApproved(routes(Request(GET, "/")), OK)
     }
 }
