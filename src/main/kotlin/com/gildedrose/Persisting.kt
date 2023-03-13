@@ -27,7 +27,6 @@ fun Sequence<String>.toStockList(): StockList {
     )
 }
 
-
 private fun Item.toLine() = "$name\t$sellByDate\t$quality"
 
 private fun lastModifiedFrom(header: List<String>): Instant? = header
