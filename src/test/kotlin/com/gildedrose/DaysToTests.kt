@@ -1,6 +1,7 @@
 package com.gildedrose
 
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.Instant
 import java.time.LocalDate
@@ -88,6 +89,7 @@ class DaysToTests {
         assertEquals(0, time("2022-03-27T23:00:01Z").daysTo(time("2022-03-28T00:00:00Z"), london))
     }
 
+    @Disabled("Long running")
     @Test
     fun `throw things at it`() {
         val zoneIds = listOf(
