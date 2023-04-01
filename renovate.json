@@ -5,5 +5,11 @@
         ":assignee(@HarisHoulis)",
         ":reviewer(@HarisHoulis)"
     ],
-    "rebaseWhen": "behind-base-branch"
+    "rebaseWhen": "behind-base-branch",
+    "packageRules": [
+        {
+          "matchUpdateTypes": ["minor", "patch"],
+          "automerge": true
+        }
+      ]
 }
