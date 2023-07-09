@@ -1,0 +1,42 @@
+name: Build
+
+on:
+    push:
+        branches:
+            - main
+    pull_request:
+    workflow_dispatch:
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        timeout-minutes: 45
+
+        steps:
+            -   uses: actions/checkout@v3
+
+            -   name: Validate Gradle Wrapper
+                uses: gradle/wrapper-validation-action@v1
+
+            -   name: set up JDK
+                uses: actions/setup-java@v3
+                with:
+                    distribution: 'zulu'
+                    java-version: 17
+
+            -   uses: gradle/gradle-build-action@v2
+                with:
+                    gradle-home-cache-cleanup: true
+
+            -   name: Run tests
+                run: ./gradlew test --debug
+
+            -   name: Run check
+                run: ./gradlew check
+
+            -   name: Upload test results (HTML)
+                if: always()
+                uses: actions/upload-artifact@v3
+                with:
+                    name: test-results
+                    path: '**/build/reports/tests/test/index.html'
