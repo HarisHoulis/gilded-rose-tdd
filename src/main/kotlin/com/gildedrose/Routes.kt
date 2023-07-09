@@ -10,8 +10,10 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.time.temporal.ChronoUnit
+import java.util.Locale
 
 private val dateFormat: DateTimeFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)
+    .withLocale(Locale.UK)
 private val handlebars = HandlebarsTemplates().HotReload("src/main/kotlin")
 
 fun routes(
