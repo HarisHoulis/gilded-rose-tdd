@@ -13,7 +13,7 @@ class Stock(
     fun stockList(now: Instant): StockList {
         val loaded = stockFile.loadItems()
         val daysOutOfDate = loaded.lastModified.daysTo(now, zoneId)
-        val potentiallyUpdatesStockList = when {
+        val potentiallyUpdatedStockList = when {
             daysOutOfDate > 0L -> loaded.copy(
                 lastModified = now,
                 items = update(loaded.items, daysOutOfDate.toInt())
@@ -21,9 +21,9 @@ class Stock(
 
             else -> loaded
         }
-        if (potentiallyUpdatesStockList.lastModified != loaded.lastModified)
-            save(potentiallyUpdatesStockList, now)
-        return potentiallyUpdatesStockList
+        if (potentiallyUpdatedStockList.lastModified != loaded.lastModified)
+            save(potentiallyUpdatedStockList, now)
+        return potentiallyUpdatedStockList
     }
 
     private fun save(stockList: StockList, now: Instant) {
