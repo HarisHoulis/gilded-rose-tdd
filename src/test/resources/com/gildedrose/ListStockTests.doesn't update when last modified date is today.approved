@@ -1,0 +1,26 @@
+<html lang="en">
+    <body>
+    <h1>13 March 2023</h1>
+    <table>
+    <tr>
+        <th>Name</th>
+        <th>Sell By Date</th>
+        <th>Sell By Days</th>
+        <th>Quality</th>
+    </tr>
+    <tr>
+        <td>banana</td>
+        <td>28 February 2023</td>
+        <td style="text-align: right">-13</td>
+        <td style="text-align: right">42</td>
+    </tr>
+    <tr>
+        <td>kumquat</td>
+        <td>2 March 2023</td>
+        <td style="text-align: right">-11</td>
+        <td style="text-align: right">101</td>
+    </tr>
+    
+    </table>
+    </body>
+</html>
