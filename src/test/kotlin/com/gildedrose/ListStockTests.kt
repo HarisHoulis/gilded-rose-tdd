@@ -18,8 +18,8 @@ internal class ListStockTests {
     private val stockList = StockList(
         lastModified = Instant.parse("2023-03-13T12:00:00Z"),
         items = listOf(
-            Item("banana", march1.minusDays(1), 42u),
-            Item("kumquat", march1.plusDays(1), 101u)
+            Item("banana", march1.minusDays(1), 42),
+            Item("kumquat", march1.plusDays(1), 101)
         )
     )
 
