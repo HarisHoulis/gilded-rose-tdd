@@ -1,6 +1,8 @@
 package com.gildedrose
 
-fun updateItems(items: List<Item>, days: Int) =
+import java.time.LocalDate
+
+fun updateItems(items: List<Item>, days: Int, on: LocalDate) =
     items.map {
-        it.updatedBy(days)
+        it.updatedBy(days, on)
     }
