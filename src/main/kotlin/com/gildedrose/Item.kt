@@ -15,7 +15,6 @@ data class Item(
 
     fun updatedBy(days: Int, on: LocalDate): Item {
         val dates = (1 - days..0).map { on.plusDays(it.toLong()) }
-        dates.forEach { println(it) }
         return dates.fold(this) { item, date ->
             item.update(date)
         }
