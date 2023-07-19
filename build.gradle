@@ -9,6 +9,7 @@ repositories {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    implementation "org.slf4j:slf4j-jdk14:1.7.36"
 
     implementation platform("org.http4k:http4k-bom:5.4.0.0")
     implementation "org.http4k:http4k-core"
