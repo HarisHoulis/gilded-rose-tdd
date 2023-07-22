@@ -8,12 +8,14 @@ import java.time.Instant
 class Fixture(
     initialStockList: StockList,
     val now: Instant,
+    val events: MutableList<Any> = mutableListOf(),
     val stockFile: File = Files.createTempFile("stock", ".tsv").toFile(),
 ) {
 
     val routes = routesFor(
         stockFile = stockFile,
-        clock = { now }
+        clock = { now },
+        events = { events.add(it) }
     )
 
     init {

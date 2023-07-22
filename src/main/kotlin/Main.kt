@@ -18,7 +18,7 @@ import java.time.ZoneId
 
 fun main() {
     val file = File("stock.tsv")
-    val server = Server(routesFor(file) { Instant.now() })
+    val server = Server(routesFor(file, { Instant.now() }, mutableListOf<Any>()::add))
     server.start()
 }
 
@@ -27,9 +27,14 @@ private val londonZoneId = ZoneId.of("Europe/London")
 fun routesFor(
     stockFile: File,
     clock: () -> Instant,
+    events: (Any) -> Unit,
 ): HttpHandler {
     val stock = Stock(stockFile, londonZoneId, ::updateItems)
-    return catchAllFilter.then(
+    return CatchAll { e ->
+        logger.error("Uncaught Exception", e)
+        events(UncaughtExceptionEvent(e))
+        Response(INTERNAL_SERVER_ERROR).body("Something went wrong, sorry.")
+    }.then(
         routes(
             "/" bind GET to listHandler(clock, londonZoneId, stock::stockList),
             "/error" bind GET to { error("deliberate") }
@@ -38,7 +43,5 @@ fun routesFor(
 }
 
 val logger: Logger = LoggerFactory.getLogger("Uncaught Exceptions")
-val catchAllFilter = CatchAll { e ->
-    logger.error("Uncaught Exception", e)
-    Response(INTERNAL_SERVER_ERROR).body("Something went wrong, sorry.")
-}
+
+data class UncaughtExceptionEvent(val exception: Throwable)
