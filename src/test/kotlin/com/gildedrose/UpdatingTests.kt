@@ -52,4 +52,12 @@ internal class UpdatingTests {
             Item("banana", march1, 42).updatedBy(2, on = march1.plusDays(1))
         )
     }
+
+    @Test
+    fun `items with no sell-by date don't degrade in quality`() {
+        assertEquals(
+            Item("banana", null, 42),
+            Item("banana", null, 42).updatedBy(1, on = march1.plusDays(1))
+        )
+    }
 }

@@ -19,7 +19,8 @@ internal class ListStockTests {
         lastModified = Instant.parse("2023-03-13T12:00:00Z"),
         items = listOf(
             Item("banana", march1.minusDays(1), 42),
-            Item("kumquat", march1.plusDays(1), 101)
+            Item("kumquat", march1.plusDays(1), 101),
+            Item("undated", null, 50)
         )
     )
 

@@ -15,6 +15,7 @@ class PersistenceTests {
     private val items = listOf(
         Item("banana", march1, 42),
         Item("peach", march1.plusDays(1), 100),
+        Item("undated", null, 50)
     )
 
     @Test

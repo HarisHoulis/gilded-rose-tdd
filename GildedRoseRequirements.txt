@@ -22,14 +22,18 @@ I want to load the stock list from disk and print it to the screen in the format
 I'm sick of the command line. I want to view the stock list in my browser.
 The format should be the same as previous.
 
-# When I View the Stock in a Browser it should update qualities
+# When I View the Stock in a Browser it should update qualities.
 
 Quality update is going to be complicated, but for now just reduce the quality of each item by one every day
 
-# Quality should not follow below 0
+# Quality should not follow below 0.
 
-THe quality of an item is never negative
+The quality of an item is never negative.
 
 # Items Degrade Faster After Their Sell-By Date
 
-Once the sell-by date has passed, items reduce in quality by two every day
+Once the sell-by date has passed, items reduce in quality by two every day.
+
+# Sulphuras has no Sell-By Date and doesn't degrade
+
+Items without a sell-by date don't degrade.
