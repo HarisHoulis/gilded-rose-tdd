@@ -8,10 +8,11 @@ data class Item(
     val quality: Int,
 ) {
     private val updater: (on: LocalDate) -> Item =
-        if (this.name == "Aged Brie")
-            this::updateBrie
-        else
-            this::updateStandard
+        when {
+            name == "Aged Brie" -> this::updateBrie
+            name.startsWith("Backstage Pass") -> this::updatePass
+            else -> this::updateStandard
+        }
 
     init {
         require(quality >= 0) {
@@ -43,4 +44,17 @@ private fun Item.updateBrie(on: LocalDate): Item {
         else -> 1
     }
     return copy(quality = (quality + improvement).coerceAtMost(50))
+}
+
+private fun Item.updatePass(on: LocalDate): Item {
+    if(sellByDate == null) return this
+
+    val daysUntilSellBy = sellByDate.toEpochDay() - on.toEpochDay()
+    val newQuality = when {
+        daysUntilSellBy < 0 -> 0
+        daysUntilSellBy < 5 -> 3 + quality
+        daysUntilSellBy < 10 -> 2 + quality
+        else -> 1 + quality
+    }
+    return copy(quality = newQuality.coerceAtMost(50))
 }
