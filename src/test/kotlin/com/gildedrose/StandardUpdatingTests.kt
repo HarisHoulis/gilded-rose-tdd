@@ -8,56 +8,56 @@ internal class StandardUpdatingTests {
     @Test
     fun `items decrease in quality one per day`() {
         assertEquals(
-            Item("banana", march1, 41),
-            Item("banana", march1, 42).updatedBy(1, on = march1)
+            itemOf("banana", march1, 41),
+            itemOf("banana", march1, 42).updatedBy(1, on = march1)
         )
         assertEquals(
-            Item("banana", march1, 42),
-            Item("banana", march1, 42).updatedBy(0, on = march1),
+            itemOf("banana", march1, 42),
+            itemOf("banana", march1, 42).updatedBy(0, on = march1),
         )
         assertEquals(
-            Item("banana", march1, 40),
-            Item("banana", march1, 42).updatedBy(2, on = march1)
+            itemOf("banana", march1, 40),
+            itemOf("banana", march1, 42).updatedBy(2, on = march1)
         )
     }
 
     @Test
     fun `items quality does not become negative`() {
         assertEquals(
-            Item("banana", march1, 0),
-            Item("banana", march1, 0).updatedBy(1, on = march1)
+            itemOf("banana", march1, 0),
+            itemOf("banana", march1, 0).updatedBy(1, on = march1)
         )
         assertEquals(
-            Item("banana", march1, 0),
-            Item("banana", march1, 1).updatedBy(2, on = march1)
+            itemOf("banana", march1, 0),
+            itemOf("banana", march1, 1).updatedBy(2, on = march1)
         )
     }
 
     @Test
     fun `items decrease in quality two per day after sell-by date`() {
         assertEquals(
-            Item("banana", march1, 40),
-            Item("banana", march1, 42).updatedBy(1, on = march1.plusDays(1))
+            itemOf("banana", march1, 40),
+            itemOf("banana", march1, 42).updatedBy(1, on = march1.plusDays(1))
         )
         assertEquals(
-            Item("banana", march1, 42),
-            Item("banana", march1, 42).updatedBy(0, on = march1.plusDays(1))
+            itemOf("banana", march1, 42),
+            itemOf("banana", march1, 42).updatedBy(0, on = march1.plusDays(1))
         )
         assertEquals(
-            Item("banana", march1, 38),
-            Item("banana", march1, 42).updatedBy(2, on = march1.plusDays(2))
+            itemOf("banana", march1, 38),
+            itemOf("banana", march1, 42).updatedBy(2, on = march1.plusDays(2))
         )
         assertEquals(
-            Item("banana", march1, 39),
-            Item("banana", march1, 42).updatedBy(2, on = march1.plusDays(1))
+            itemOf("banana", march1, 39),
+            itemOf("banana", march1, 42).updatedBy(2, on = march1.plusDays(1))
         )
     }
 
     @Test
     fun `items with no sell-by date don't degrade in quality`() {
         assertEquals(
-            Item("banana", null, 42),
-            Item("banana", null, 42).updatedBy(1, on = march1.plusDays(1))
+            itemOf("banana", null, 42),
+            itemOf("banana", null, 42).updatedBy(1, on = march1.plusDays(1))
         )
     }
 }
