@@ -1,6 +1,7 @@
 package com.gildedrose
 
 import java.time.LocalDate
+import kotlin.math.max
 
 class Item(
     val name: String,
@@ -21,7 +22,10 @@ class Item(
         }
     }
 
-    fun withQuality(quality: Int) = itemOf(name, sellByDate, quality)
+    fun withQuality(quality: Int): Item {
+        val qualityCap = max(this.quality, 50)
+        return itemOf(name, sellByDate, quality.coerceIn(0, qualityCap))
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -41,5 +45,5 @@ class Item(
         return result
     }
 
-
+    override fun toString() = "Item(name='$name', sellByDate=$sellByDate, quality=$quality)"
 }
