@@ -54,3 +54,9 @@ Quality is capped at 50.
 No item can ever have a negative quality.
 No item should have its quality raised above 50 by updating,
 but items can be taken into stock with > 50 quality and then degrade gradually.
+
+# Conjured Items
+
+Conjured items degrade in quality twice as fast as normal items.
+Any item can be conjured and if they get better with time, then conjuring makes them get better
+twice as fast too.

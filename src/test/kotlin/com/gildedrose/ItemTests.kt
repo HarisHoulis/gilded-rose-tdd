@@ -1,6 +1,7 @@
 package com.gildedrose
 
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -47,5 +48,21 @@ internal class ItemTests {
         assertThrows<IllegalArgumentException> {
             itemOf("banana", null, -1)
         }
+    }
+
+    @Test
+    fun `item types for equality`() {
+        assertNotEquals(
+            itemOf("Conjured banana", march1, 50),
+            itemOf("Conjured Aged Brie", march1, 50).copy(name = "Conjured banana")
+        )
+    }
+
+    @Test
+    fun `item types for toString`() {
+        assertEquals(
+            "Item(name=Conjured banana, sellByDate=2023-03-01, quality=50, type=CONJURED STANDARD)",
+            itemOf("Conjured banana", march1, 50).toString()
+        )
     }
 }
