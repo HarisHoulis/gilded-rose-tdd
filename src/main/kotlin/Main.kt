@@ -2,9 +2,9 @@ import com.gildedrose.Analytics
 import com.gildedrose.AnalyticsEvent
 import com.gildedrose.LoggingAnalytics
 import com.gildedrose.Server
-import com.gildedrose.Stock
 import com.gildedrose.domain.updateItems
 import com.gildedrose.listHandler
+import com.gildedrose.persistence.Stock
 import org.http4k.core.HttpHandler
 import org.http4k.core.HttpTransaction
 import org.http4k.core.Method.GET
