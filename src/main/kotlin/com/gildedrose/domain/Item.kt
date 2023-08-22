@@ -1,4 +1,4 @@
-package com.gildedrose
+package com.gildedrose.domain
 
 import java.time.LocalDate
 import kotlin.math.max
@@ -25,3 +25,9 @@ data class Item(
         return copy(quality = quality.coerceIn(0, qualityCap))
     }
 }
+
+fun itemOf(
+    name: String,
+    sellByDate: LocalDate?,
+    quality: Int
+) = Item(name, sellByDate, quality, typeFor(sellByDate, name))
