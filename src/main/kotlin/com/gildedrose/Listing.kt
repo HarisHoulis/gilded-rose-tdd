@@ -1,6 +1,7 @@
 package com.gildedrose
 
 import com.gildedrose.domain.Item
+import com.gildedrose.domain.StockList
 import org.http4k.core.HttpHandler
 import org.http4k.core.Response
 import org.http4k.core.Status.Companion.OK

@@ -1,7 +1,7 @@
 package com.gildedrose.persistence
 
-import com.gildedrose.StockList
 import com.gildedrose.domain.Item
+import com.gildedrose.domain.StockList
 import java.io.File
 import java.time.Instant
 import java.time.LocalDate

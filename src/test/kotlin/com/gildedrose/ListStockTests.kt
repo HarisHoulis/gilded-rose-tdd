@@ -1,5 +1,6 @@
 package com.gildedrose
 
+import com.gildedrose.domain.StockList
 import com.gildedrose.domain.itemOf
 import io.kotest.matchers.shouldBe
 import org.http4k.core.Method.GET

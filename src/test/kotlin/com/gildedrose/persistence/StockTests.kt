@@ -1,8 +1,8 @@
 package com.gildedrose.persistence
 
 import com.gildedrose.Fixture
-import com.gildedrose.StockList
 import com.gildedrose.domain.Item
+import com.gildedrose.domain.StockList
 import com.gildedrose.domain.itemOf
 import com.gildedrose.march1
 import org.junit.jupiter.api.Assertions.assertEquals
