@@ -1,4 +1,4 @@
-package com.gildedrose
+package com.gildedrose.foundation
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
@@ -8,11 +8,16 @@ import com.fasterxml.jackson.module.paramnames.ParameterNamesModule
 import org.http4k.filter.ZipkinTracesStorage
 import java.time.Instant
 
-typealias Analytics = (AnalyticsEvent) -> Unit
-
 @Suppress("unused")
 interface AnalyticsEvent {
     val eventName: String get() = this::class.simpleName ?: "Event Name Unknown"
+}
+
+typealias Analytics = (AnalyticsEvent) -> Unit
+
+infix fun Analytics.then(that: Analytics): Analytics = { event ->
+    this(event)
+    that(event)
 }
 
 class LoggingAnalytics(

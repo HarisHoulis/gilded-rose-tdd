@@ -1,8 +1,8 @@
-import com.gildedrose.Analytics
-import com.gildedrose.AnalyticsEvent
-import com.gildedrose.LoggingAnalytics
 import com.gildedrose.Server
 import com.gildedrose.domain.updateItems
+import com.gildedrose.foundation.Analytics
+import com.gildedrose.foundation.AnalyticsEvent
+import com.gildedrose.foundation.LoggingAnalytics
 import com.gildedrose.listHandler
 import com.gildedrose.persistence.Stock
 import org.http4k.core.HttpHandler

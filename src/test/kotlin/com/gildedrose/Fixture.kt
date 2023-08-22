@@ -1,6 +1,7 @@
 package com.gildedrose
 
 import analytics
+import com.gildedrose.foundation.then
 import com.gildedrose.persistence.loadItems
 import com.gildedrose.persistence.saveTo
 import routesFor
@@ -30,9 +31,4 @@ class Fixture(
     }
 
     fun load(): StockList = stockFile.loadItems()
-}
-
-private infix fun Analytics.then(that: Analytics): Analytics = { event ->
-    this(event)
-    that(event)
 }
