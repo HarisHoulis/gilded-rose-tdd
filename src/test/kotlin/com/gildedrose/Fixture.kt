@@ -29,5 +29,5 @@ class Fixture(
         stockList.saveTo(stockFile)
     }
 
-    fun load(): StockList = stockFile.loadItems()
+    fun load(): StockList = stockFile.loadItems() ?: error("Could not load stock")
 }
