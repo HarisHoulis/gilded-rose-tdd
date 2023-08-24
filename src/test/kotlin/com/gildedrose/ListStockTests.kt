@@ -1,7 +1,6 @@
 package com.gildedrose
 
 import com.gildedrose.domain.StockList
-import com.gildedrose.domain.itemOf
 import io.kotest.matchers.shouldBe
 import org.http4k.core.Method.GET
 import org.http4k.core.Request
@@ -20,9 +19,9 @@ internal class ListStockTests {
     private val stockList = StockList(
         lastModified = Instant.parse("2023-03-13T12:00:00Z"),
         items = listOf(
-            itemOf("banana", march1.minusDays(1), 42),
-            itemOf("kumquat", march1.plusDays(1), 101),
-            itemOf("undated", null, 50)
+            testItem("banana", march1.minusDays(1), 42),
+            testItem("kumquat", march1.plusDays(1), 101),
+            testItem("undated", null, 50)
         )
     )
 

@@ -3,12 +3,26 @@ package com.gildedrose.domain
 import java.time.LocalDate
 import kotlin.math.max
 
-data class Item(
+@Suppress("DataClassPrivateConstructor") // protected by requires in init
+data class Item private constructor(
     val name: String,
     val sellByDate: LocalDate?,
     val quality: Int,
     private val type: ItemType
 ) {
+
+    companion object {
+        operator fun invoke(
+            name: String,
+            sellByDate: LocalDate?,
+            quality: Int
+        ): Item? = try {
+            Item(name, sellByDate, quality, typeFor(sellByDate, name))
+        } catch (x: Exception) {
+            null
+        }
+    }
+
     init {
         require(quality >= 0) {
             "Quality (=$quality) can not be negative!"
@@ -25,9 +39,3 @@ data class Item(
         return copy(quality = quality.coerceIn(0, qualityCap))
     }
 }
-
-fun itemOf(
-    name: String,
-    sellByDate: LocalDate?,
-    quality: Int
-) = Item(name, sellByDate, quality, typeFor(sellByDate, name))

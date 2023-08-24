@@ -1,8 +1,8 @@
 package com.gildedrose.persistence
 
 import com.gildedrose.domain.StockList
-import com.gildedrose.domain.itemOf
 import com.gildedrose.march1
+import com.gildedrose.testItem
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.Test
@@ -16,9 +16,9 @@ class PersistenceTests {
     private val now = Instant.now()
 
     private val items = listOf(
-        itemOf("banana", march1, 42),
-        itemOf("peach", march1.plusDays(1), 100),
-        itemOf("undated", null, 50)
+        testItem("banana", march1, 42),
+        testItem("peach", march1.plusDays(1), 100),
+        testItem("undated", null, 50)
     )
 
     @Test

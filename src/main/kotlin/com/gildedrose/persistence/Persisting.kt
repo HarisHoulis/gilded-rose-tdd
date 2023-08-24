@@ -2,7 +2,6 @@ package com.gildedrose.persistence
 
 import com.gildedrose.domain.Item
 import com.gildedrose.domain.StockList
-import com.gildedrose.domain.itemOf
 import java.io.File
 import java.io.IOException
 import java.time.Instant
@@ -46,11 +45,11 @@ private fun String.toInstant() = try {
 
 private fun String.toItem(): Item {
     val parts = split("\t")
-    return itemOf(
+    return Item(
         name = parts[0],
         sellByDate = parts[1].toLocalDate(),
         quality = parts[2].toInt(),
-    )
+    ) ?: error("Cannot create item")
 }
 
 private fun String.toLocalDate() =
