@@ -2,9 +2,9 @@ package com.gildedrose.domain
 
 import com.gildedrose.march1
 import com.gildedrose.testItem
+import dev.forkhandles.result4k.Failure
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
-import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 
 internal class ItemTests {
@@ -47,7 +47,10 @@ internal class ItemTests {
 
     @Test
     fun `cannot create with negative quality`() {
-        assertNull(Item("banana", null, -1))
+        assertEquals(
+            Failure(null),
+            Item("banana", null, -1)
+        )
     }
 
     @Test

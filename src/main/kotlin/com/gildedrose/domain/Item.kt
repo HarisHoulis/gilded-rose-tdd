@@ -1,5 +1,8 @@
 package com.gildedrose.domain
 
+import dev.forkhandles.result4k.Failure
+import dev.forkhandles.result4k.Result4k
+import dev.forkhandles.result4k.Success
 import java.time.LocalDate
 import kotlin.math.max
 
@@ -16,10 +19,10 @@ data class Item private constructor(
             name: String,
             sellByDate: LocalDate?,
             quality: Int
-        ): Item? = try {
-            Item(name, sellByDate, quality, typeFor(sellByDate, name))
+        ): Result4k<Item, Nothing?> = try {
+            Success(Item(name, sellByDate, quality, typeFor(sellByDate, name)))
         } catch (x: Exception) {
-            null
+            Failure(null)
         }
     }
 
