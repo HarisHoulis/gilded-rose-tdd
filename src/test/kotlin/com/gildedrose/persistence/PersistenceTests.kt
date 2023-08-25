@@ -3,6 +3,7 @@ package com.gildedrose.persistence
 import com.gildedrose.domain.StockList
 import com.gildedrose.march1
 import com.gildedrose.testItem
+import dev.forkhandles.result4k.Success
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.Test
@@ -30,7 +31,7 @@ class PersistenceTests {
         stockList.saveTo(file)
 
         assertEquals(
-            stockList,
+            Success(stockList),
             file.loadItems()
         )
     }
@@ -40,7 +41,7 @@ class PersistenceTests {
         val stockList = StockList(now, emptyList())
 
         assertEquals(
-            stockList,
+            Success(stockList),
             stockList.toLines().toStockList()
         )
     }
@@ -48,7 +49,7 @@ class PersistenceTests {
     @Test
     fun `load from empty file`() {
         assertEquals(
-            StockList(Instant.EPOCH, emptyList()),
+            Success(StockList(Instant.EPOCH, emptyList())),
             emptySequence<String>().toStockList()
         )
     }
@@ -58,7 +59,7 @@ class PersistenceTests {
         val lines = sequenceOf("# Banana")
 
         assertEquals(
-            StockList(Instant.EPOCH, emptyList()),
+            Success(StockList(Instant.EPOCH, emptyList())),
             lines.toStockList()
         )
     }

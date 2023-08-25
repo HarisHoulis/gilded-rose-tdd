@@ -2,6 +2,8 @@ package com.gildedrose
 
 import com.gildedrose.domain.Item
 import com.gildedrose.domain.StockList
+import dev.forkhandles.result4k.Result
+import dev.forkhandles.result4k.onFailure
 import org.http4k.core.HttpHandler
 import org.http4k.core.Response
 import org.http4k.core.Status.Companion.OK
@@ -22,11 +24,11 @@ private val handlebars = HandlebarsTemplates().HotReload("src/main/kotlin")
 fun listHandler(
     clock: () -> Instant,
     zoneId: ZoneId,
-    listing: (Instant) -> StockList?,
+    listing: (Instant) -> Result<StockList, Nothing?>,
 ): HttpHandler = { _ ->
     val now = clock()
     val today = LocalDate.ofInstant(now, zoneId)
-    val stockList = listing(now) ?: error("Could not load stock")
+    val stockList = listing(now).onFailure { error("Could not load stock") }
     Response(OK).body(handlebars(
         StockListViewModel(
             now = dateFormat.format(today),

@@ -4,6 +4,7 @@ import com.gildedrose.domain.StockList
 import com.gildedrose.foundation.then
 import com.gildedrose.persistence.loadItems
 import com.gildedrose.persistence.saveTo
+import dev.forkhandles.result4k.onFailure
 import java.io.File
 import java.nio.file.Files
 import java.time.Instant
@@ -29,5 +30,5 @@ class Fixture(
         stockList.saveTo(stockFile)
     }
 
-    fun load(): StockList = stockFile.loadItems() ?: error("Could not load stock")
+    fun load(): StockList = stockFile.loadItems().onFailure { error("Could not load stock") }
 }
