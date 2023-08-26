@@ -5,6 +5,7 @@ import com.gildedrose.domain.StockList
 import dev.forkhandles.result4k.Failure
 import dev.forkhandles.result4k.Result4k
 import dev.forkhandles.result4k.Success
+import dev.forkhandles.result4k.mapFailure
 import dev.forkhandles.result4k.onFailure
 import java.io.File
 import java.io.IOException
@@ -56,7 +57,7 @@ private fun String.toItem(): Result4k<Item, Nothing?> {
         name = parts[0],
         sellByDate = parts[1].toLocalDate(),
         quality = parts[2].toInt()
-    )
+    ).mapFailure { null }
 }
 
 private fun String.toLocalDate() =

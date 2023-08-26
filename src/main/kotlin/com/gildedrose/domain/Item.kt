@@ -1,5 +1,7 @@
 package com.gildedrose.domain
 
+import com.gildedrose.domain.ItemCreationError.BlankName
+import com.gildedrose.domain.ItemCreationError.NegativeQuality
 import dev.forkhandles.result4k.Failure
 import dev.forkhandles.result4k.Result4k
 import dev.forkhandles.result4k.Success
@@ -19,16 +21,22 @@ data class Item private constructor(
             name: String,
             sellByDate: LocalDate?,
             quality: Int
-        ): Result4k<Item, Nothing?> = try {
+        ): Result4k<Item, ItemCreationError> = try {
             Success(Item(name, sellByDate, quality, typeFor(sellByDate, name)))
         } catch (x: Exception) {
-            Failure(null)
+            if (x is ItemCreationError)
+                Failure(x)
+            else
+                error("")
         }
     }
 
     init {
-        require(quality >= 0) {
-            "Quality (=$quality) can not be negative!"
+        if (quality < 0) {
+            throw NegativeQuality(quality)
+        }
+        if (name.isBlank()) {
+            throw BlankName
         }
     }
 
@@ -41,4 +49,9 @@ data class Item private constructor(
         val qualityCap = max(this.quality, 50)
         return copy(quality = quality.coerceIn(0, qualityCap))
     }
+}
+
+sealed interface ItemCreationError {
+    data class NegativeQuality(val actual: Int) : ItemCreationError, Exception()
+    data object BlankName : ItemCreationError, Exception()
 }
