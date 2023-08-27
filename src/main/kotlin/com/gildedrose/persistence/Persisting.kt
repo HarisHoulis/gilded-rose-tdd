@@ -1,7 +1,6 @@
 package com.gildedrose.persistence
 
 import com.gildedrose.domain.Item
-import com.gildedrose.domain.ItemCreationError
 import com.gildedrose.domain.StockList
 import com.gildedrose.persistence.StockListLoadingError.CouldntCreateItem
 import com.gildedrose.persistence.StockListLoadingError.CouldntParseLastModified
@@ -22,13 +21,16 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
 
+private const val LAST_MODIFIED_HEADER = "# LastModified:"
+
+@Throws(IOException::class)
 fun StockList.saveTo(file: File) {
     file.writer().buffered().use { writer ->
         toLines().forEach(writer::appendLine)
     }
 }
 
-fun StockList.toLines(): Sequence<String> = sequenceOf("# LastModified: $lastModified") +
+fun StockList.toLines(): Sequence<String> = sequenceOf("$LAST_MODIFIED_HEADER $lastModified") +
     items.map(Item::toLine)
 
 fun File.loadItems(): Result4k<StockList, StockListLoadingError> =
@@ -56,8 +58,8 @@ private fun Item.toLine() = "$name\t${sellByDate ?: ""}\t$quality"
 
 private fun lastModifiedFrom(header: List<String>): Result<Instant?, CouldntParseLastModified> =
     header
-        .lastOrNull { it.startsWith("# LastModified:") }
-        ?.substring("# LastModified:".length)
+        .lastOrNull { it.startsWith(LAST_MODIFIED_HEADER) }
+        ?.substring(LAST_MODIFIED_HEADER.length)
         ?.trim()
         ?.toInstant() ?: Success(null)
 
@@ -89,12 +91,3 @@ private fun String.toLocalDate(line: String): Result<LocalDate?, CouldntParseSel
     } catch (x: DateTimeParseException) {
         Failure(CouldntParseSellByDate(line))
     }
-
-sealed interface StockListLoadingError {
-    data class CouldntParseLastModified(val message: String) : StockListLoadingError
-    data class CouldntCreateItem(val reason: ItemCreationError) : StockListLoadingError
-    data class NotEnoughFields(val line: String) : StockListLoadingError
-    data class CouldntParseQuality(val line: String) : StockListLoadingError
-    data class CouldntParseSellByDate(val line: String) : StockListLoadingError
-    data class IO(val message: String) : StockListLoadingError
-}

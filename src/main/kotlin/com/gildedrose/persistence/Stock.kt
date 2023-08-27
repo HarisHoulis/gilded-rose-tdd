@@ -2,11 +2,13 @@ package com.gildedrose.persistence
 
 import com.gildedrose.domain.Item
 import com.gildedrose.domain.StockList
+import com.gildedrose.persistence.StockListLoadingError.IO
 import dev.forkhandles.result4k.Failure
 import dev.forkhandles.result4k.Result
 import dev.forkhandles.result4k.Success
-import dev.forkhandles.result4k.recover
+import dev.forkhandles.result4k.flatMap
 import java.io.File
+import java.io.IOException
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -16,39 +18,40 @@ class Stock(
     private val zoneId: ZoneId,
     private val update: (items: List<Item>, days: Int, on: LocalDate) -> List<Item>,
 ) {
-    fun stockList(now: Instant): Result<StockList, Nothing?> {
-        val loaded: StockList = stockFile.loadItems().recover { return Failure(null) }
-        val daysOutOfDate = loaded.lastModified.daysTo(now, zoneId)
-        val potentiallyUpdatedStockList = when {
-            daysOutOfDate > 0L -> loaded.copy(
-                lastModified = now,
-                items = update(
-                    loaded.items,
-                    daysOutOfDate.toInt(),
-                    LocalDate.ofInstant(now, zoneId)
-                )
-            )
-
-            else -> loaded
+    fun stockList(now: Instant): Result<StockList, StockListLoadingError> =
+        stockFile.loadItems().flatMap { loaded ->
+            val daysOutOfDate = loaded.lastModified.daysTo(now, zoneId)
+            when {
+                daysOutOfDate > 0L -> loaded.updated(now, daysOutOfDate).savedTo(stockFile, now)
+                else -> Success(loaded)
+            }
         }
-        if (potentiallyUpdatedStockList.lastModified != loaded.lastModified)
-            save(potentiallyUpdatedStockList, now)
-        return Success(potentiallyUpdatedStockList)
-    }
 
-    private fun save(stockList: StockList, now: Instant) {
+    private fun StockList.updated(
+        now: Instant,
+        daysOutOfDate: Long
+    ) = copy(
+        lastModified = now,
+        items = update(items, daysOutOfDate.toInt(), LocalDate.ofInstant(now, zoneId))
+    )
+}
+
+private fun StockList.savedTo(stockFile: File, now: Instant): Result<StockList, IO> =
+    try {
         val versionFile = File.createTempFile(
             "${stockFile.nameWithoutExtension}-$now",
             "." + stockFile.extension,
             stockFile.parentFile
         )
-        stockList.saveTo(versionFile)
+        saveTo(versionFile)
         val tempFile = File.createTempFile("tmp", "." + stockFile.extension)
-        stockList.saveTo(tempFile)
+        saveTo(tempFile)
         if (!tempFile.renameTo(stockFile))
             error("Failed to rename temp to stockFile")
+        Success(this)
+    } catch (x: IOException) {
+        Failure(IO(x.message.toString()))
     }
-}
 
 internal fun Instant.daysTo(that: Instant, zone: ZoneId): Long =
     LocalDate.ofInstant(that, zone).toEpochDay() - LocalDate.ofInstant(this, zone).toEpochDay()
