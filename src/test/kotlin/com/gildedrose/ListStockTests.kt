@@ -1,14 +1,18 @@
 package com.gildedrose
 
+import com.gildedrose.domain.ItemCreationError
 import com.gildedrose.domain.StockList
+import com.gildedrose.persistence.StockListLoadingError.CouldntCreateItem
 import io.kotest.matchers.shouldBe
 import org.http4k.core.Method.GET
 import org.http4k.core.Request
+import org.http4k.core.Status.Companion.INTERNAL_SERVER_ERROR
 import org.http4k.core.Status.Companion.OK
 import org.http4k.testing.ApprovalTest
 import org.http4k.testing.Approver
 import org.http4k.testing.assertApproved
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.Instant
@@ -51,7 +55,7 @@ internal class ListStockTests {
             Fixture(stockList, now = sameDayAsLastModifiedDate)
         ) {
             approver.assertApproved(routes(Request(GET, "/")), OK)
-            Assertions.assertEquals(stockList, load())
+            assertEquals(stockList, load())
         }
     }
 
@@ -63,6 +67,20 @@ internal class ListStockTests {
         ) {
             approver.assertApproved(routes(Request(GET, "/")), OK)
             Assertions.assertNotEquals(stockList, load())
+        }
+    }
+
+    @Test
+    fun `reports errors`(approver: Approver) {
+        with(
+            Fixture(stockList, now = Instant.parse("2023-03-14T00:00:00Z"))
+        ) {
+            stockFile.writeText(stockFile.readText().replace("banana", ""))
+            approver.assertApproved(routes(Request(GET, "/")), INTERNAL_SERVER_ERROR)
+            assertEquals(
+                CouldntCreateItem(ItemCreationError.BlankName),
+                events.first()
+            )
         }
     }
 }
