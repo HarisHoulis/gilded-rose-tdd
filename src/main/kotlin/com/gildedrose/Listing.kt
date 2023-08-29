@@ -2,11 +2,11 @@ package com.gildedrose
 
 import com.gildedrose.domain.Item
 import com.gildedrose.domain.StockList
-import com.gildedrose.foundation.Analytics
+import com.gildedrose.http.ResponseErrors.withError
 import com.gildedrose.persistence.StockListLoadingError
-import dev.forkhandles.result4k.Failure
 import dev.forkhandles.result4k.Result
-import dev.forkhandles.result4k.Success
+import dev.forkhandles.result4k.map
+import dev.forkhandles.result4k.recover
 import org.http4k.core.HttpHandler
 import org.http4k.core.Response
 import org.http4k.core.Status.Companion.INTERNAL_SERVER_ERROR
@@ -28,25 +28,21 @@ private val handlebars = HandlebarsTemplates().HotReload("src/main/kotlin")
 fun listHandler(
     clock: () -> Instant,
     zoneId: ZoneId,
-    analytics: Analytics,
     listing: (Instant) -> Result<StockList, StockListLoadingError>,
 ): HttpHandler = { _ ->
     val now = clock()
     val today = LocalDate.ofInstant(now, zoneId)
-    when (val stockListResult = listing(now)) {
-        is Failure -> {
-            analytics(stockListResult.reason)
-            Response(INTERNAL_SERVER_ERROR).body("Something went wrong, we're really sorry.")
-        }
-
-        is Success ->
-            Response(OK).body(handlebars(
-                StockListViewModel(
-                    now = dateFormat.format(today),
-                    items = stockListResult.value.map { it.toMap(today) }
-                )
-            ))
-
+    listing(now).map { stockList ->
+        Response(OK).body(handlebars(
+            StockListViewModel(
+                now = dateFormat.format(today),
+                items = stockList.map { it.toMap(today) }
+            )
+        ))
+    }.recover { error ->
+        Response(INTERNAL_SERVER_ERROR)
+            .withError(error)
+            .body("Something went wrong, we're really sorry.")
     }
 }
 
