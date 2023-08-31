@@ -1,8 +1,7 @@
 package com.gildedrose
 
-import com.gildedrose.domain.ItemCreationError
 import com.gildedrose.domain.StockList
-import com.gildedrose.persistence.StockListLoadingError.CouldntCreateItem
+import com.gildedrose.persistence.StockListLoadingError.BlankName
 import io.kotest.matchers.shouldBe
 import org.http4k.core.Method.GET
 import org.http4k.core.Request
@@ -78,7 +77,7 @@ internal class ListStockTests {
             stockFile.writeText(stockFile.readText().replace("banana", ""))
             approver.assertApproved(routes(Request(GET, "/")), INTERNAL_SERVER_ERROR)
             assertEquals(
-                CouldntCreateItem(ItemCreationError.BlankName),
+                BlankName("\t2023-02-28\t42"),
                 events.first()
             )
         }

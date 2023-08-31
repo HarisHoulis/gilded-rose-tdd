@@ -1,6 +1,5 @@
 package com.gildedrose.domain
 
-import com.gildedrose.domain.ItemCreationError.BlankName
 import com.gildedrose.domain.ItemCreationError.ItemCreationException
 import com.gildedrose.domain.ItemCreationError.NegativeQuality
 import dev.forkhandles.result4k.Failure
@@ -11,19 +10,18 @@ import kotlin.math.max
 
 @Suppress("DataClassPrivateConstructor") // protected by requires in init
 data class Item private constructor(
-    val name: String,
+    val name: NonBlankString,
     val sellByDate: LocalDate?,
     val quality: Int,
-    private val type: ItemType
+    private val type: ItemType,
 ) {
-
     companion object {
         operator fun invoke(
-            name: String,
+            name: NonBlankString,
             sellByDate: LocalDate?,
-            quality: Int
+            quality: Int,
         ): Result4k<Item, ItemCreationError> = try {
-            Success(Item(name, sellByDate, quality, typeFor(sellByDate, name)))
+            Success(Item(name, sellByDate, quality, typeFor(sellByDate, name.value)))
         } catch (x: Exception) {
             if (x is ItemCreationException)
                 Failure(x.error)
@@ -35,9 +33,6 @@ data class Item private constructor(
     init {
         if (quality < 0) {
             throw ItemCreationException(NegativeQuality(quality))
-        }
-        if (name.isBlank()) {
-            throw ItemCreationException(BlankName)
         }
     }
 
@@ -57,7 +52,6 @@ sealed interface ItemCreationError {
     val errorName: String get() = this::class.simpleName ?: "Error Name Unknown"
 
     data class NegativeQuality(val actual: Int) : ItemCreationError
-    data object BlankName : ItemCreationError
 
     class ItemCreationException(val error: ItemCreationError) : Exception()
 }
