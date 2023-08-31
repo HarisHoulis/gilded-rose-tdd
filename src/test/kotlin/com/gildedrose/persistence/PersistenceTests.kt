@@ -1,9 +1,9 @@
 package com.gildedrose.persistence
 
-import com.gildedrose.domain.ItemCreationError.BlankName
 import com.gildedrose.domain.ItemCreationError.NegativeQuality
 import com.gildedrose.domain.StockList
 import com.gildedrose.march1
+import com.gildedrose.persistence.StockListLoadingError.BlankName
 import com.gildedrose.persistence.StockListLoadingError.CouldntCreateItem
 import com.gildedrose.persistence.StockListLoadingError.CouldntParseLastModified
 import com.gildedrose.persistence.StockListLoadingError.CouldntParseQuality
@@ -89,7 +89,7 @@ class PersistenceTests {
     @Test
     fun `fails to load with blank name`() {
         assertEquals(
-            Failure(CouldntCreateItem(BlankName)),
+            Failure(BlankName("\t2023-08-26\t42")),
             sequenceOf("\t2023-08-26\t42").toStockList()
         )
     }

@@ -1,7 +1,9 @@
 package com.gildedrose.persistence
 
 import com.gildedrose.domain.Item
+import com.gildedrose.domain.NonBlankString
 import com.gildedrose.domain.StockList
+import com.gildedrose.persistence.StockListLoadingError.BlankName
 import com.gildedrose.persistence.StockListLoadingError.CouldntCreateItem
 import com.gildedrose.persistence.StockListLoadingError.CouldntParseLastModified
 import com.gildedrose.persistence.StockListLoadingError.CouldntParseQuality
@@ -54,7 +56,7 @@ fun Sequence<String>.toStockList(): Result4k<StockList, StockListLoadingError> {
     }
 }
 
-private fun Item.toLine() = "$name\t${sellByDate ?: ""}\t$quality"
+private fun Item.toLine() = "${name.value}\t${sellByDate ?: ""}\t$quality"
 
 private fun lastModifiedFrom(header: List<String>): Result<Instant?, CouldntParseLastModified> =
     header
@@ -74,10 +76,11 @@ private fun String.toItem(): Result4k<Item, StockListLoadingError> {
     val parts = split("\t")
     if (parts.size < 3)
         return Failure(NotEnoughFields(this))
-    val quality = parts[2].toIntOrNull() ?: return Failure(CouldntParseQuality(this))
+    val name = NonBlankString(parts[0]) ?: return Failure(BlankName(this))
     val sellByDate = parts[1].toLocalDate(this).onFailure { return it }
+    val quality = parts[2].toIntOrNull() ?: return Failure(CouldntParseQuality(this))
     return Item(
-        name = parts[0],
+        name = name,
         sellByDate = sellByDate,
         quality = quality
     ).mapFailure {
