@@ -2,9 +2,9 @@ package com.gildedrose.persistence
 
 import com.gildedrose.domain.Item
 import com.gildedrose.domain.NonBlankString
+import com.gildedrose.domain.NonNegativeInt
 import com.gildedrose.domain.StockList
 import com.gildedrose.persistence.StockListLoadingError.BlankName
-import com.gildedrose.persistence.StockListLoadingError.CouldntCreateItem
 import com.gildedrose.persistence.StockListLoadingError.CouldntParseLastModified
 import com.gildedrose.persistence.StockListLoadingError.CouldntParseQuality
 import com.gildedrose.persistence.StockListLoadingError.CouldntParseSellByDate
@@ -15,7 +15,6 @@ import dev.forkhandles.result4k.Result
 import dev.forkhandles.result4k.Result4k
 import dev.forkhandles.result4k.Success
 import dev.forkhandles.result4k.map
-import dev.forkhandles.result4k.mapFailure
 import dev.forkhandles.result4k.onFailure
 import java.io.File
 import java.io.IOException
@@ -78,14 +77,10 @@ private fun String.toItem(): Result4k<Item, StockListLoadingError> {
         return Failure(NotEnoughFields(this))
     val name = NonBlankString(parts[0]) ?: return Failure(BlankName(this))
     val sellByDate = parts[1].toLocalDate(this).onFailure { return it }
-    val quality = parts[2].toIntOrNull() ?: return Failure(CouldntParseQuality(this))
-    return Item(
-        name = name,
-        sellByDate = sellByDate,
-        quality = quality
-    ).mapFailure {
-        CouldntCreateItem(it)
-    }
+    val quality = parts[2].toIntOrNull()?.let { NonNegativeInt(it) } ?: return Failure(
+        CouldntParseQuality(this)
+    )
+    return Success(Item(name = name, sellByDate = sellByDate, quality = quality))
 }
 
 private fun String.toLocalDate(line: String): Result<LocalDate?, CouldntParseSellByDate> =
