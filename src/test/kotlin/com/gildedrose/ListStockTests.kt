@@ -2,7 +2,6 @@ package com.gildedrose
 
 import com.gildedrose.domain.StockList
 import com.gildedrose.persistence.StockListLoadingError.BlankName
-import io.kotest.matchers.shouldBe
 import org.http4k.core.Method.GET
 import org.http4k.core.Request
 import org.http4k.core.Status.Companion.INTERNAL_SERVER_ERROR
@@ -41,7 +40,10 @@ internal class ListStockTests {
         with(
             Fixture(stockList, now = Instant.parse("2023-03-01T12:00:00Z"))
         ) {
-            routes(Request(GET, "/")).status shouldBe OK
+            assertEquals(
+                OK,
+                routes(Request(GET, "/")).status
+            )
 
             save(StockList(Instant.now(), emptyList()))
             approver.assertApproved(routes(Request(GET, "/")), OK)
