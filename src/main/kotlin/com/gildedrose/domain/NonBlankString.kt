@@ -1,7 +1,7 @@
 package com.gildedrose.domain
 
 @JvmInline
-value class NonBlankString private constructor(val value: String) {
+value class NonBlankString private constructor(val value: String) : CharSequence by value {
 
     companion object {
         operator fun invoke(value: String) = when {
