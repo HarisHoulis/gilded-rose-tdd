@@ -108,5 +108,5 @@ private fun simpleUpdateItems(
     @Suppress("UNUSED_PARAMETER") on: LocalDate,
 ) =
     items.map {
-        it.withQuality(quality = it.quality - days)
+        it.withQuality(quality = it.quality.value - days)
     }

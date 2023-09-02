@@ -1,40 +1,16 @@
 package com.gildedrose.domain
 
-import com.gildedrose.domain.ItemCreationError.ItemCreationException
-import com.gildedrose.domain.ItemCreationError.NegativeQuality
-import dev.forkhandles.result4k.Failure
-import dev.forkhandles.result4k.Result4k
-import dev.forkhandles.result4k.Success
 import java.time.LocalDate
 import kotlin.math.max
 
-@Suppress("DataClassPrivateConstructor") // protected by requires in init
-data class Item private constructor(
+data class Item(
     val name: NonBlankString,
     val sellByDate: LocalDate?,
-    val quality: Int,
+    val quality: NonNegativeInt,
     private val type: ItemType,
 ) {
-    companion object {
-        operator fun invoke(
-            name: NonBlankString,
-            sellByDate: LocalDate?,
-            quality: Int,
-        ): Result4k<Item, ItemCreationError> = try {
-            Success(Item(name, sellByDate, quality, typeFor(sellByDate, name)))
-        } catch (x: Exception) {
-            if (x is ItemCreationException)
-                Failure(x.error)
-            else
-                error("")
-        }
-    }
-
-    init {
-        if (quality < 0) {
-            throw ItemCreationException(NegativeQuality(quality))
-        }
-    }
+    constructor(name: NonBlankString, sellByDate: LocalDate?, quality: NonNegativeInt) :
+        this(name, sellByDate, quality, typeFor(sellByDate, name))
 
     fun updatedBy(days: Int, on: LocalDate): Item {
         val dates = (1 - days..0).map { on.plusDays(it.toLong()) }
@@ -42,16 +18,10 @@ data class Item private constructor(
     }
 
     fun withQuality(quality: Int): Item {
-        val qualityCap = max(this.quality, 50)
-        return copy(quality = quality.coerceIn(0, qualityCap))
+        val qualityCap = max(this.quality.value, 50)
+        return copy(
+            quality = NonNegativeInt(quality.coerceIn(0, qualityCap))
+                ?: error("tried to create a negative int")
+        )
     }
-}
-
-sealed interface ItemCreationError {
-    @Suppress("unused")
-    val errorName: String get() = this::class.simpleName ?: "Error Name Unknown"
-
-    data class NegativeQuality(val actual: Int) : ItemCreationError
-
-    class ItemCreationException(val error: ItemCreationError) : Exception()
 }
