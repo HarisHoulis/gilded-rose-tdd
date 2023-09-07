@@ -17,11 +17,10 @@ data class Item(
         return dates.fold(this, type::update)
     }
 
-    fun withQuality(quality: Int): Item {
-        val qualityCap = max(this.quality.value, 50)
-        return copy(
-            quality = NonNegativeInt(quality.coerceIn(0, qualityCap))
-                ?: error("tried to create a negative int")
-        )
+    fun degradedBy(degradation: Int): Item {
+        val qualityCap = max(quality.value, 50)
+        val newQuality = NonNegativeInt((quality - degradation).coerceIn(0, qualityCap))
+            ?: error("tried to create a negative int")
+        return copy(quality = newQuality)
     }
 }

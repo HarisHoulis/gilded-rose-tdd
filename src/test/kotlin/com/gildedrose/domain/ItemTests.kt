@@ -20,7 +20,7 @@ internal class ItemTests {
     fun `no item should have a quality above 50 by updating`() {
         assertEquals(
             testItem("banana", null, 50),
-            testItem("banana", null, 50).withQuality(51)
+            testItem("banana", null, 50).degradedBy(-1)
         )
     }
 
@@ -28,11 +28,11 @@ internal class ItemTests {
     fun `items can keep a quality of above 50`() {
         assertEquals(
             testItem("banana", null, 54),
-            testItem("banana", null, 55).withQuality(54)
+            testItem("banana", null, 55).degradedBy(1)
         )
         assertEquals(
             testItem("banana", null, 55),
-            testItem("banana", null, 55).withQuality(55)
+            testItem("banana", null, 55).degradedBy(-1)
         )
     }
 
@@ -40,7 +40,7 @@ internal class ItemTests {
     fun `no item should have its quality reduced below 0 by updating`() {
         assertEquals(
             testItem("banana", null, 0),
-            testItem("banana", null, 2).withQuality(-1)
+            testItem("banana", null, 2).degradedBy(3)
         )
     }
 
