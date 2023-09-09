@@ -108,5 +108,5 @@ private fun simpleUpdateItems(
     @Suppress("UNUSED_PARAMETER") on: LocalDate,
 ) =
     items.map {
-        it.degradedBy(days)
+        it.copy(quality = it.quality - days)
     }
