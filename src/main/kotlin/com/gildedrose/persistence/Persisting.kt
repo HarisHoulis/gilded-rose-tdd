@@ -2,7 +2,7 @@ package com.gildedrose.persistence
 
 import com.gildedrose.domain.Item
 import com.gildedrose.domain.NonBlankString
-import com.gildedrose.domain.NonNegativeInt
+import com.gildedrose.domain.Quality
 import com.gildedrose.domain.StockList
 import com.gildedrose.persistence.StockListLoadingError.BlankName
 import com.gildedrose.persistence.StockListLoadingError.CouldntParseLastModified
@@ -77,7 +77,7 @@ private fun String.toItem(): Result4k<Item, StockListLoadingError> {
         return Failure(NotEnoughFields(this))
     val name = NonBlankString(parts[0]) ?: return Failure(BlankName(this))
     val sellByDate = parts[1].toLocalDate(this).onFailure { return it }
-    val quality = parts[2].toIntOrNull()?.let { NonNegativeInt(it) } ?: return Failure(
+    val quality = parts[2].toIntOrNull()?.let { Quality(it) } ?: return Failure(
         CouldntParseQuality(this)
     )
     return Success(Item(name = name, sellByDate = sellByDate, quality = quality))
