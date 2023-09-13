@@ -11,7 +11,7 @@ internal class ItemTests {
     @Test
     fun `toString shows type`() {
         assertEquals(
-            "Item(name=banana, sellByDate=2023-03-01, quality=50, type=STANDARD)",
+            "Item(id=null, name=banana, sellByDate=2023-03-01, quality=50, type=STANDARD)",
             testItem("banana", march1, 50).toString()
         )
     }
@@ -63,7 +63,7 @@ internal class ItemTests {
     @Test
     fun `item types for toString`() {
         assertEquals(
-            "Item(name=Conjured banana, sellByDate=2023-03-01, quality=50, type=CONJURED STANDARD)",
+            "Item(id=null, name=Conjured banana, sellByDate=2023-03-01, quality=50, type=CONJURED STANDARD)",
             testItem("Conjured banana", march1, 50).toString()
         )
     }

@@ -1,9 +1,11 @@
 package com.gildedrose.persistence
 
+import com.gildedrose.domain.ID
 import com.gildedrose.domain.Item
 import com.gildedrose.domain.NonBlankString
 import com.gildedrose.domain.Quality
 import com.gildedrose.domain.StockList
+import com.gildedrose.persistence.StockListLoadingError.BlankID
 import com.gildedrose.persistence.StockListLoadingError.BlankName
 import com.gildedrose.persistence.StockListLoadingError.CouldntParseLastModified
 import com.gildedrose.persistence.StockListLoadingError.CouldntParseQuality
@@ -55,7 +57,11 @@ fun Sequence<String>.toStockList(): Result4k<StockList, StockListLoadingError> {
     }
 }
 
-private fun Item.toLine() = "${name.value}\t${sellByDate ?: ""}\t$quality"
+private fun Item.toLine() =
+    when (id) {
+        null -> "${name.value}\t${sellByDate ?: ""}\t$quality"
+        else -> "$id\t${name.value}\t${sellByDate ?: ""}\t$quality"
+    }
 
 private fun lastModifiedFrom(header: List<String>): Result<Instant?, CouldntParseLastModified> =
     header
@@ -73,14 +79,30 @@ private fun String.toInstant(): Result<Instant, CouldntParseLastModified> =
 
 private fun String.toItem(): Result4k<Item, StockListLoadingError> {
     val parts = split("\t")
-    if (parts.size < 3)
-        return Failure(NotEnoughFields(this))
+    return when {
+        parts.size < 3 -> Failure(NotEnoughFields(this))
+        parts.size == 3 -> itemWithoutIdFrom(parts)
+        else -> itemWithIdFrom(parts)
+    }
+}
+
+private fun String.itemWithoutIdFrom(parts: List<String>): Result<Item, StockListLoadingError> {
     val name = NonBlankString(parts[0]) ?: return Failure(BlankName(this))
     val sellByDate = parts[1].toLocalDate(this).onFailure { return it }
     val quality = parts[2].toIntOrNull()?.let { Quality(it) } ?: return Failure(
         CouldntParseQuality(this)
     )
     return Success(Item(name = name, sellByDate = sellByDate, quality = quality))
+}
+
+private fun String.itemWithIdFrom(parts: List<String>): Result<Item, StockListLoadingError> {
+    val id = ID<Item>(parts[0]) ?: return Failure(BlankID(this))
+    val name = NonBlankString(parts[1]) ?: return Failure(BlankName(this))
+    val sellByDate = parts[2].toLocalDate(this).onFailure { return it }
+    val quality = parts[3].toIntOrNull()?.let { Quality(it) } ?: return Failure(
+        CouldntParseQuality(this)
+    )
+    return Success(Item(id = id, name = name, sellByDate = sellByDate, quality = quality))
 }
 
 private fun String.toLocalDate(line: String): Result<LocalDate?, CouldntParseSellByDate> =
