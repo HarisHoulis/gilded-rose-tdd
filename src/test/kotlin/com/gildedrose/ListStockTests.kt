@@ -79,7 +79,7 @@ internal class ListStockTests {
             stockFile.writeText(stockFile.readText().replace("banana", ""))
             approver.assertApproved(routes(Request(GET, "/")), INTERNAL_SERVER_ERROR)
             assertEquals(
-                BlankName("\t2023-02-28\t42"),
+                BlankName("B1\t\t2023-02-28\t42"),
                 events.first()
             )
         }

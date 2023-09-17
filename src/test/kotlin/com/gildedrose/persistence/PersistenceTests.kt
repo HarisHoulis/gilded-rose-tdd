@@ -2,6 +2,7 @@ package com.gildedrose.persistence
 
 import com.gildedrose.domain.StockList
 import com.gildedrose.march1
+import com.gildedrose.persistence.StockListLoadingError.BlankID
 import com.gildedrose.persistence.StockListLoadingError.BlankName
 import com.gildedrose.persistence.StockListLoadingError.CouldntParseLastModified
 import com.gildedrose.persistence.StockListLoadingError.CouldntParseQuality
@@ -79,48 +80,56 @@ class PersistenceTests {
     @Test
     fun `fails to load with negative quality`() {
         assertEquals(
-            Failure(CouldntParseQuality("banana\t2023-08-26\t-1")),
-            sequenceOf("banana\t2023-08-26\t-1").toStockList()
+            Failure(CouldntParseQuality("B1\tbanana\t2023-08-26\t-1")),
+            sequenceOf("B1\tbanana\t2023-08-26\t-1").toStockList()
         )
     }
 
     @Test
     fun `fails to load with blank name`() {
         assertEquals(
-            Failure(BlankName("\t2023-08-26\t42")),
-            sequenceOf("\t2023-08-26\t42").toStockList()
+            Failure(BlankName("id\t\t2023-08-26\t42")),
+            sequenceOf("id\t\t2023-08-26\t42").toStockList()
+        )
+    }
+
+    @Test
+    fun `fails to load with blank id`() {
+        assertEquals(
+            Failure(BlankID("\tbanana\t2023-08-26\t42")),
+            sequenceOf("\tbanana\t2023-08-26\t42").toStockList()
         )
     }
 
     @Test
     fun `fails to load with too few fields`() {
         assertEquals(
-            Failure(NotEnoughFields("banana\t2023-08-26")),
-            sequenceOf("banana\t2023-08-26").toStockList()
+            Failure(NotEnoughFields("B1\tbanana\t2023-08-26")),
+            sequenceOf("B1\tbanana\t2023-08-26").toStockList()
         )
     }
 
     @Test
     fun `fails to load with no quality`() {
         assertEquals(
-            Failure(CouldntParseQuality("banana\t2023-08-26\t")),
-            sequenceOf("banana\t2023-08-26\t").toStockList()
+            Failure(CouldntParseQuality("B1\tbanana\t2023-08-26\t")),
+            sequenceOf("B1\tbanana\t2023-08-26\t").toStockList()
         )
     }
 
     @Test
     fun `fails to load with duff quality`() {
         assertEquals(
-            Failure(CouldntParseQuality("banana\t2023-08-26\teh?")),
-            sequenceOf("banana\t2023-08-26\teh?").toStockList()
+            Failure(CouldntParseQuality("B1\tbanana\t2023-08-26\teh?")),
+            sequenceOf("B1\tbanana\t2023-08-26\teh?").toStockList()
         )
     }
 
     @Test
     fun `fails to load with bad sellByDate`() {
         assertEquals(
-            Failure(CouldntParseSellByDate("banana\teh?\t42")),
-            sequenceOf("banana\teh?\t42").toStockList()
+            Failure(CouldntParseSellByDate("B1\tbanana\teh?\t42")),
+            sequenceOf("B1\tbanana\teh?\t42").toStockList()
         )
     }
 }

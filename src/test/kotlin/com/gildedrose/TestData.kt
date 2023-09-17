@@ -1,5 +1,6 @@
 package com.gildedrose
 
+import com.gildedrose.domain.ID
 import com.gildedrose.domain.Item
 import com.gildedrose.domain.NonBlankString
 import com.gildedrose.domain.Quality
@@ -11,4 +12,16 @@ fun testItem(
     name: String,
     sellByDate: LocalDate?,
     quality: Int,
-): Item = Item(NonBlankString(name)!!, sellByDate, Quality(quality)!!)
+): Item = Item(
+    ID(initialsFrom(name) + "1")!!,
+    NonBlankString(name)!!,
+    sellByDate,
+    Quality(quality)!!
+)
+
+fun initialsFrom(name: String): String =
+    name.split(" ")
+        .map { it[0] }
+        .joinToString("")
+        .uppercase()
+
