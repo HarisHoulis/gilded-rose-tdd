@@ -16,7 +16,7 @@ import java.time.ZoneId
 class Stock(
     private val stockFile: File,
     private val zoneId: ZoneId,
-    private val update: (items: List<Item>, days: Int, on: LocalDate) -> List<Item>,
+    private val itemUpdate: Item.(days: Int, on: LocalDate) -> Item,
 ) {
     fun stockList(now: Instant): Result<StockList, StockListLoadingError> =
         stockFile.loadItems().flatMap { loaded ->
@@ -29,10 +29,12 @@ class Stock(
 
     private fun StockList.updated(
         now: Instant,
-        daysOutOfDate: Long
+        daysOutOfDate: Long,
     ) = copy(
         lastModified = now,
-        items = update(items, daysOutOfDate.toInt(), LocalDate.ofInstant(now, zoneId))
+        items = items.map {
+            it.itemUpdate(daysOutOfDate.toInt(), LocalDate.ofInstant(now, zoneId))
+        }
     )
 }
 
