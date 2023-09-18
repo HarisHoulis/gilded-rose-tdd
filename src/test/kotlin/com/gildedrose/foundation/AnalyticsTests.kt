@@ -13,7 +13,7 @@ class AnalyticsTests {
     fun `outputs json of the events`() {
         val logged = mutableListOf<String>()
         val now = Instant.parse("2023-07-24T05:30:33.233518Z")
-        val analytics = LoggingAnalytics(
+        val analytics = loggingAnalytics(
             logger = logged::add,
             clock = { now }
         )
