@@ -1,5 +1,6 @@
 package com.gildedrose
 
+import com.gildedrose.domain.Features
 import com.gildedrose.domain.Item
 import com.gildedrose.foundation.Analytics
 import com.gildedrose.foundation.loggingAnalytics
@@ -25,6 +26,7 @@ fun routesFor(
     stockFile: File,
     clock: () -> Instant,
     analytics: Analytics,
+    features: Features,
 ): HttpHandler {
     val stock = Stock(stockFile, londonZoneId, Item::updatedBy)
     return ServerFilters.RequestTracing().then(
@@ -32,7 +34,12 @@ fun routesFor(
             catchAll(analytics).then(
                 ResponseErrors.reportTo(analytics).then(
                     routes(
-                        "/" bind Method.GET to listHandler(clock, londonZoneId, stock::stockList),
+                        "/" bind Method.GET to listHandler(
+                            clock,
+                            londonZoneId,
+                            features.pricing,
+                            stock::stockList
+                        ),
                         "/error" bind Method.GET to { error("deliberate") }
                     )
                 )

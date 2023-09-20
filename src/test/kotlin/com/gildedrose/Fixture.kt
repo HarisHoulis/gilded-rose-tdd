@@ -1,5 +1,6 @@
 package com.gildedrose
 
+import com.gildedrose.domain.Features
 import com.gildedrose.domain.StockList
 import com.gildedrose.foundation.then
 import com.gildedrose.persistence.loadItems
@@ -14,12 +15,14 @@ class Fixture(
     val now: Instant,
     val events: MutableList<Any> = mutableListOf(),
     val stockFile: File = Files.createTempFile("stock", ".tsv").toFile(),
+    val features: Features = Features(),
 ) {
 
     val routes = routesFor(
         stockFile = stockFile,
         clock = { now },
-        analytics = analytics then { events.add(it) }
+        analytics = analytics then { events.add(it) },
+        features = features
     )
 
     init {
