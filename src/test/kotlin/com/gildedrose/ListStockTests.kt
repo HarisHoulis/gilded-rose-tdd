@@ -1,6 +1,8 @@
 package com.gildedrose
 
 import com.gildedrose.domain.Features
+import com.gildedrose.domain.Item
+import com.gildedrose.domain.Price
 import com.gildedrose.domain.StockList
 import com.gildedrose.persistence.StockListLoadingError.BlankName
 import org.http4k.core.Method.GET
@@ -37,16 +39,23 @@ internal class ListStockTests {
         }
 
     @Test
-    fun `list stock with pricing enabled`(approver: Approver) =
+    fun `list stock with pricing enabled`(approver: Approver) {
+        val priceLookup: Map<Item, Price?> = mapOf(
+            stockList.items[0] to Price(100),
+            stockList.items[1] to Price(401),
+            stockList.items[2] to null,
+        )
         with(
             Fixture(
                 initialStockList = stockList,
                 now = Instant.parse("2023-03-01T12:00:00Z"),
-                features = Features(pricing = true)
+                pricing = priceLookup::getValue,
+                features = Features(pricing = true),
             )
         ) {
             approver.assertApproved(routes(Request(GET, "/")), OK)
         }
+    }
 
     @Test
     fun `list stock sees file updates`(approver: Approver) =

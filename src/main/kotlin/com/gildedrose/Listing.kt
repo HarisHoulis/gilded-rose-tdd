@@ -1,6 +1,7 @@
 package com.gildedrose
 
 import com.gildedrose.domain.Item
+import com.gildedrose.domain.Price
 import com.gildedrose.domain.StockList
 import com.gildedrose.http.ResponseErrors.withError
 import com.gildedrose.persistence.StockListLoadingError
@@ -28,6 +29,7 @@ private val handlebars = HandlebarsTemplates().HotReload("src/main/kotlin")
 fun listHandler(
     clock: () -> Instant,
     zoneId: ZoneId,
+    pricing: (Item) -> Price?,
     isPricingEnabled: Boolean,
     listing: (Instant) -> Result<StockList, StockListLoadingError>,
 ): HttpHandler = { _ ->
@@ -37,7 +39,7 @@ fun listHandler(
         Response(OK).body(handlebars(
             StockListViewModel(
                 now = dateFormat.format(today),
-                items = stockList.map { it.toMap(today) },
+                items = stockList.map { item -> item.toMap(today, pricing(item)) },
                 isPricingEnabled = isPricingEnabled
             )
         ))
@@ -54,12 +56,13 @@ private data class StockListViewModel(
     val isPricingEnabled: Boolean,
 ) : ViewModel
 
-private fun Item.toMap(now: LocalDate): Map<String, String> = mapOf(
+private fun Item.toMap(now: LocalDate, price: Price?): Map<String, String> = mapOf(
     "id" to id.toString(),
     "name" to name.value,
     "sellByDate" to if (sellByDate == null) "" else dateFormat.format(sellByDate),
     "sellByDays" to daysUntilSellBy(now).toString(),
-    "quality" to quality.toString()
+    "quality" to quality.toString(),
+    "price" to (price?.toString() ?: "")
 )
 
 private fun Item.daysUntilSellBy(now: LocalDate): Long =

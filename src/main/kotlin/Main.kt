@@ -1,5 +1,7 @@
 import com.gildedrose.analytics
 import com.gildedrose.domain.Features
+import com.gildedrose.domain.Item
+import com.gildedrose.domain.Price
 import com.gildedrose.http.Server
 import com.gildedrose.routesFor
 import java.io.File
@@ -13,8 +15,12 @@ fun main() {
             stockFile = file,
             clock = { Instant.now() },
             analytics = analytics,
-            features = features
+            features = features,
+            pricing = ::dummyPricing
         )
     )
     server.start()
 }
+
+@Suppress("UNUSED_PARAMETER")
+fun dummyPricing(item: Item): Price? = null
