@@ -8,6 +8,7 @@ import org.http4k.core.HttpHandler
 import org.http4k.core.Method
 import org.http4k.core.Request
 import org.http4k.core.Status
+import org.http4k.core.Status.Companion.NOT_FOUND
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
@@ -18,7 +19,7 @@ import java.time.LocalDate
 internal class ValueElfTests {
 
     private val uri = URI.create("http://value-elf.com:8080/prices")
-    private val client: (Item) -> Price? = clientFor(uri)
+    private val client: (Item) -> Price? = valueElfClientFor(uri)
 
     @Test
     fun `returns price when there is one`() {
@@ -39,7 +40,7 @@ internal class ValueElfTests {
     }
 }
 
-fun clientFor(uri: URI): (Item) -> Price? {
+fun valueElfClientFor(uri: URI): (Item) -> Price? {
     val client: HttpHandler = ApacheClient()
     return { item ->
         val request = Request(Method.GET, uri.toString())
@@ -47,7 +48,7 @@ fun clientFor(uri: URI): (Item) -> Price? {
             .query("quality", item.quality.toString())
         val response = client.invoke(request)
         when (response.status) {
-            in listOf(Status.NOT_FOUND, Status.CONNECTION_REFUSED) -> null
+            in listOf(NOT_FOUND) -> null
             Status.OK -> Price(response.bodyString().toLong())
             else -> error("Unexpected API response ${response.status}")
         }
