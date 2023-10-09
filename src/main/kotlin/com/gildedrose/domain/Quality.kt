@@ -11,6 +11,8 @@ value class Quality(private val value: NonNegativeInt) {
         operator fun invoke(value: Int): Quality? = NonNegativeInt(value)?.let { Quality(it) }
     }
 
+    val valueInt get() = value.value
+
     override fun toString() = value.toString()
 
     operator fun minus(rhs: Quality): Int = this.value - rhs.value
