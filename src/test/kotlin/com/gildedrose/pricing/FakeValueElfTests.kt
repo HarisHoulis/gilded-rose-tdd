@@ -17,47 +17,34 @@ import org.junit.jupiter.api.Test
 import java.net.URI
 import java.time.LocalDate
 
+private val aUri = URI.create("http://localhost:8888/prices")
+private val anItem = testItem("banana", "doesn't matter", LocalDate.now(), 9)
+private val aNotFoundItem = testItem("not-such", "doesn't matter", LocalDate.now(), 9)
+
 internal class FakeValueElfTests {
 
-    private val uri = URI.create("http://localhost:8888/prices")
-    private val item = testItem("banana", "doesn't matter", LocalDate.now(), 9)
-    private val priceLookup = mutableMapOf<Pair<ID<Item>, Quality>, Price?>()
+    private val priceLookup = mapOf(
+        (anItem.id to anItem.quality) to Price(609),
+        (aNotFoundItem.id to aNotFoundItem.quality) to null,
+    )
     private val routes = fakeValueElfRoutes { id, quality ->
         priceLookup[id to quality]
     }
-    private val client = valueElfClient(uri, routes)
+    private val client = valueElfClient(aUri, routes)
 
-    @Disabled("Slows down tests")
     @Test
-    fun `actually call server`() {
-        val client: (Item) -> Price? = valueElfClient(uri)
-        val item = testItem("banana", "doesn't matter", LocalDate.now(), 9)
-        priceLookup[item.id to item.quality] = Price(609)
-        val server = fakeValueElfServer(8888) { id, quality ->
-            priceLookup[id to quality]
-        }
-        server.start().use {
-            assertEquals(
-                Price(609),
-                client(item)
-            )
-        }
+    fun `returns price that does exist`() {
+        assertEquals(Price(609), client(anItem))
     }
 
     @Test
-    fun `price that exists`() {
-        priceLookup[item.id to item.quality] = Price(609)
-        assertEquals(Price(609), client(item))
-    }
-
-    @Test
-    fun `no price`() {
-        assertEquals(null, client(item))
+    fun `returns null for no price`() {
+        assertEquals(null, client(aNotFoundItem))
     }
 
     @Test
     fun `returns BAD_REQUEST for invalid query strings`() {
-        val baseRequest = Request(GET, uri.toString())
+        val baseRequest = Request(GET, aUri.toString())
         assertThat(routes(baseRequest), hasStatus(BAD_REQUEST))
         assertThat(routes(baseRequest.query("id", "some-id")), hasStatus(BAD_REQUEST))
         assertThat(routes(baseRequest.query("id", "")), hasStatus(BAD_REQUEST))
@@ -73,6 +60,22 @@ internal class FakeValueElfTests {
             routes(baseRequest.query("id", "some-id").query("quality", "-1")),
             hasStatus(BAD_REQUEST)
         )
+    }
+
+    @Disabled("Slows down tests")
+    @Test
+    fun `actually call server`() {
+        val client: (Item) -> Price? = valueElfClient(aUri)
+        val item = testItem("banana", "doesn't matter", LocalDate.now(), 9)
+        val server = fakeValueElfServer(8888) { id, quality ->
+            priceLookup[id to quality]
+        }
+        server.start().use {
+            assertEquals(
+                Price(609),
+                client(item)
+            )
+        }
     }
 }
 
