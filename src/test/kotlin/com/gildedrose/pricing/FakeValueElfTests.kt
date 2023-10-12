@@ -5,73 +5,51 @@ import com.gildedrose.domain.Item
 import com.gildedrose.domain.Price
 import com.gildedrose.domain.Quality
 import com.gildedrose.http.serverFor
+import com.gildedrose.pricing.ValueElfContract.Fixture
 import com.gildedrose.testItem
-import com.natpryce.hamkrest.assertion.assertThat
-import org.http4k.core.Method.GET
-import org.http4k.core.Request
-import org.http4k.core.Status.Companion.BAD_REQUEST
-import org.http4k.hamkrest.hasStatus
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.http4k.client.ApacheClient
+import org.http4k.core.Response
+import org.http4k.core.Status
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.net.URI
 import java.time.LocalDate
 
-private val aUri = URI.create("http://localhost:8888/prices")
-private val anItem = testItem("banana", "doesn't matter", LocalDate.now(), 9)
-private val aNotFoundItem = testItem("not-such", "doesn't matter", LocalDate.now(), 9)
+private val baseFixture = Fixture(
+    uri = URI.create("http://localhost:8888/prices"),
+    handler = { Response(Status.I_M_A_TEAPOT) },
+    expectedPrice = Price(609)!!
+)
 
-internal class FakeValueElfTests {
+private val priceLookup: Map<Pair<ID<Item>, Quality>, Price?> = mapOf(
+    (baseFixture.aFoundItem.id to baseFixture.aFoundItem.quality) to baseFixture.expectedPrice,
+    (baseFixture.aNotFoundItem.id to baseFixture.aNotFoundItem.quality) to null,
+)
 
-    private val priceLookup = mapOf(
-        (anItem.id to anItem.quality) to Price(609),
-        (aNotFoundItem.id to aNotFoundItem.quality) to null,
-    )
-    private val routes = fakeValueElfRoutes { id, quality ->
+internal class FakeValueElfTests : ValueElfContract(
+    baseFixture.copy(handler = fakeValueElfRoutes { id, quality ->
         priceLookup[id to quality]
-    }
-    private val client = valueElfClient(aUri, routes)
+    })
+)
 
-    @Test
-    fun `returns price that does exist`() {
-        assertEquals(Price(609), client(anItem))
-    }
+@Disabled("Slows down tests")
+internal class FakeValueElfHttpTests :
+    ValueElfContract(baseFixture.copy(handler = ApacheClient())) {
 
-    @Test
-    fun `returns null for no price`() {
-        assertEquals(null, client(aNotFoundItem))
-    }
-
-    @Test
-    fun `returns BAD_REQUEST for invalid query strings`() {
-        val baseRequest = Request(GET, aUri.toString())
-        assertThat(routes(baseRequest), hasStatus(BAD_REQUEST))
-        assertThat(routes(baseRequest.query("id", "some-id")), hasStatus(BAD_REQUEST))
-        assertThat(routes(baseRequest.query("id", "")), hasStatus(BAD_REQUEST))
-        assertThat(
-            routes(baseRequest.query("id", "some-id").query("quality", "")),
-            hasStatus(BAD_REQUEST)
-        )
-        assertThat(
-            routes(baseRequest.query("id", "some-id").query("quality", "nan")),
-            hasStatus(BAD_REQUEST)
-        )
-        assertThat(
-            routes(baseRequest.query("id", "some-id").query("quality", "-1")),
-            hasStatus(BAD_REQUEST)
-        )
-    }
-
-    @Disabled("Slows down tests")
-    @Test
-    fun `actually call server`() {
-        val client: (Item) -> Price? = valueElfClient(aUri)
-        val item = testItem("banana", "doesn't matter", LocalDate.now(), 9)
+    companion object {
         val server = fakeValueElfServer(8888) { id, quality ->
             priceLookup[id to quality]
         }
+    }
+
+    @Test
+    fun `actually call server`() {
+        val client: (Item) -> Price? = valueElfClient(baseFixture.aUri)
+        val item = testItem("banana", "doesn't matter", LocalDate.now(), 9)
+
         server.start().use {
-            assertEquals(
+            Assertions.assertEquals(
                 Price(609),
                 client(item)
             )
