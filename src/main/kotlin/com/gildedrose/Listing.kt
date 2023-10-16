@@ -8,12 +8,16 @@ import com.gildedrose.persistence.StockListLoadingError
 import dev.forkhandles.result4k.Result
 import dev.forkhandles.result4k.map
 import dev.forkhandles.result4k.recover
+import org.http4k.core.Body
+import org.http4k.core.ContentType
 import org.http4k.core.HttpHandler
 import org.http4k.core.Response
 import org.http4k.core.Status.Companion.INTERNAL_SERVER_ERROR
 import org.http4k.core.Status.Companion.OK
+import org.http4k.core.with
 import org.http4k.template.HandlebarsTemplates
 import org.http4k.template.ViewModel
+import org.http4k.template.viewModel
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -25,6 +29,7 @@ import java.util.Locale
 private val dateFormat: DateTimeFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)
     .withLocale(Locale.UK)
 private val handlebars = HandlebarsTemplates().HotReload("src/main/kotlin")
+private val view = Body.viewModel(handlebars, ContentType.TEXT_HTML).toLens()
 
 fun listHandler(
     clock: () -> Instant,
@@ -36,13 +41,14 @@ fun listHandler(
     val now = clock()
     val today = LocalDate.ofInstant(now, zoneId)
     listing(now).map { stockList ->
-        Response(OK).body(handlebars(
-            StockListViewModel(
-                now = dateFormat.format(today),
-                items = stockList.map { item -> item.toMap(today, pricing(item)) },
-                isPricingEnabled = isPricingEnabled
+        Response(OK)
+            .with(
+                view of StockListViewModel(
+                    now = dateFormat.format(today),
+                    items = stockList.map { item -> item.toMap(today, pricing(item)) },
+                    isPricingEnabled = isPricingEnabled
+                )
             )
-        ))
     }.recover { error ->
         Response(INTERNAL_SERVER_ERROR)
             .withError(error)

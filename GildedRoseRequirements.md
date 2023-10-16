@@ -69,13 +69,16 @@ which individual one we sold.
 Sometimes items have a serial number or distinguishing feature that we can use as identifier. Where
 they don't, we can attach a label with a code to an item.
 
-# Display Item Price
+# Display Item Price From Value Elf
 
 Computers can't determine the value of magical items, that requires magic. There are three online
 interfaces to the required magic, we need to ask all three.
 
-If two or more agree use that value, otherwise the average. If any service is down (or doesn't
-respond in time)
-use those that aren't.
+For now though, just get the price from Value Elf and display it in the stock list screen.
 
-Display the price in the stock list screen.
+# Display Item Price From Multiple Sources
+
+Fetch the price from Price-O-Matic and WeBuyAnyMagicalItem as well as Value Elf.
+
+If two or more agree use that value, otherwise the average. If any service is down (or doesn't
+respond in time) use those that aren't.
