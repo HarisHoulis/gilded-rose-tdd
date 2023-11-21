@@ -45,7 +45,14 @@ fun listHandler(
             .with(
                 view of StockListViewModel(
                     now = dateFormat.format(today),
-                    items = stockList.map { item -> item.toMap(today, pricing(item)) },
+                    items = stockList.map { item ->
+                        val priceString = try {
+                            pricing(item)?.toString() ?: ""
+                        } catch (x: Exception) {
+                            "error"
+                        }
+                        item.toMap(today, priceString)
+                    },
                     isPricingEnabled = isPricingEnabled
                 )
             )
@@ -62,13 +69,13 @@ private data class StockListViewModel(
     val isPricingEnabled: Boolean,
 ) : ViewModel
 
-private fun Item.toMap(now: LocalDate, price: Price?): Map<String, String> = mapOf(
+private fun Item.toMap(now: LocalDate, priceString: String): Map<String, String> = mapOf(
     "id" to id.toString(),
     "name" to name.value,
     "sellByDate" to if (sellByDate == null) "" else dateFormat.format(sellByDate),
     "sellByDays" to daysUntilSellBy(now).toString(),
     "quality" to quality.toString(),
-    "price" to (price?.toString() ?: "")
+    "price" to priceString
 )
 
 private fun Item.daysUntilSellBy(now: LocalDate): Long =
