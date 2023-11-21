@@ -3,12 +3,17 @@ package com.gildedrose
 import com.gildedrose.domain.Features
 import com.gildedrose.domain.Item
 import com.gildedrose.domain.Price
+import com.gildedrose.domain.StockList
 import com.gildedrose.foundation.Analytics
 import com.gildedrose.foundation.loggingAnalytics
 import com.gildedrose.http.ResponseErrors
 import com.gildedrose.http.catchAll
 import com.gildedrose.http.reportHttpTransactions
 import com.gildedrose.persistence.Stock
+import com.gildedrose.persistence.StockListLoadingError
+import dev.forkhandles.result4k.Result
+import dev.forkhandles.result4k.map
+import dev.forkhandles.result4k.resultFrom
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method
 import org.http4k.core.then
@@ -31,6 +36,9 @@ fun routesFor(
     features: Features,
 ): HttpHandler {
     val stock = Stock(stockFile, londonZoneId, Item::updatedBy)
+    val listing: (Instant) -> Result<StockList, StockListLoadingError> = { now: Instant ->
+        stock.stockList(now).map { it.pricedBy(pricing) }
+    }
     return ServerFilters.RequestTracing()
         .then(reportHttpTransactions(analytics))
         .then(catchAll(analytics))
@@ -39,10 +47,15 @@ fun routesFor(
             "/" bind Method.GET to listHandler(
                 clock = clock,
                 zoneId = londonZoneId,
-                pricing = pricing,
                 isPricingEnabled = features.pricing,
-                listing = stock::stockList
+                listing = listing
             ),
             "/error" bind Method.GET to { error("deliberate") }
         ))
 }
+
+private fun StockList.pricedBy(pricing: (Item) -> Price?): StockList =
+    this.copy(items = items.map { it.pricedBy(pricing) })
+
+private fun Item.pricedBy(pricing: (Item) -> Price?): Item =
+    this.copy(price = resultFrom { pricing(this) })
