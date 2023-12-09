@@ -1,7 +1,8 @@
 package com.gildedrose.persistence
 
-import com.gildedrose.Fixture
+import App
 import com.gildedrose.domain.StockList
+import com.gildedrose.fixture
 import com.gildedrose.march1
 import com.gildedrose.testItem
 import dev.forkhandles.result4k.valueOrNull
@@ -22,7 +23,10 @@ class StockTests {
             testItem("kumquat", march1.plusDays(1), 101)
         )
     )
-    private val fixture = Fixture(initialStockList, now = initialStockList.lastModified)
+    private val fixture = App().fixture(
+        now = initialStockList.lastModified,
+        initialStockList = initialStockList
+    )
     private val stock = Stock(
         stockFile = fixture.stockFile,
         zoneId = ZoneId.of("Europe/London")

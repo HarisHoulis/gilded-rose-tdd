@@ -1,13 +1,13 @@
 package com.gildedrose
 
+import App
 import com.gildedrose.domain.Features
 import com.gildedrose.foundation.retry
 import com.gildedrose.pricing.valueElfClient
-import server
 import java.net.URI
 
 fun main() {
-    server(
+    App(
         port = 8088,
         features = Features(pricing = true),
         pricing = retry(

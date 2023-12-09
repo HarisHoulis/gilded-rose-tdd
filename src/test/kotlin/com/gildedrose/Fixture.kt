@@ -1,42 +1,44 @@
 package com.gildedrose
 
-import com.gildedrose.domain.Features
-import com.gildedrose.domain.Item
-import com.gildedrose.domain.Price
+import App
 import com.gildedrose.domain.StockList
 import com.gildedrose.foundation.then
 import com.gildedrose.persistence.loadItems
 import com.gildedrose.persistence.saveTo
 import dev.forkhandles.result4k.onFailure
-import noOpPricing
 import java.io.File
 import java.nio.file.Files
 import java.time.Instant
 
-class Fixture(
+internal fun App.fixture(
+    stockFile: File = Files.createTempFile("stock", ".tsv").toFile(),
+    now: Instant,
+    events: MutableList<Any> = mutableListOf(),
     initialStockList: StockList,
-    val now: Instant,
-    pricing: (Item) -> Price? = ::noOpPricing,
-    val events: MutableList<Any> = mutableListOf(),
-    val stockFile: File = Files.createTempFile("stock", ".tsv").toFile(),
-    val features: Features = Features(),
-) {
-
-    val routes = routesFor(
+) = Fixture(
+    events = events,
+    app = copy(
         stockFile = stockFile,
         clock = { now },
-        pricing = pricing,
-        analytics = analytics then { events.add(it) },
-        features = features
+        analytics = analytics then { events.add(it) }
     )
+).apply { save(initialStockList) }
 
-    init {
-        save(initialStockList)
-    }
+class Fixture(
+    private val app: App,
+    val events: MutableList<Any>,
+) {
+
+    val stockFile get() = app.stockFile
+    val routes = app.routes
 
     fun save(stockList: StockList) {
         stockList.saveTo(stockFile)
     }
 
-    fun load(): StockList = stockFile.loadItems().onFailure { error("Could not load stock") }
+    fun load(): StockList = stockFile
+        .loadItems()
+        .onFailure {
+            error("Could not load stock")
+        }
 }

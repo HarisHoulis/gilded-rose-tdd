@@ -1,5 +1,6 @@
 package com.gildedrose
 
+import App
 import com.gildedrose.domain.StockList
 import com.gildedrose.http.HttpEvent
 import com.gildedrose.http.UncaughtExceptionEvent
@@ -17,12 +18,12 @@ import java.time.Instant
 
 class ApplicationEventsTests {
 
-    private val fixture = Fixture(
+    private val fixture = App().fixture(
+        now = Instant.now(),
         initialStockList = StockList(
             Instant.parse("2022-02-09T12:00:00Z"),
             emptyList()
-        ),
-        now = Instant.now(),
+        )
     )
 
     @Test

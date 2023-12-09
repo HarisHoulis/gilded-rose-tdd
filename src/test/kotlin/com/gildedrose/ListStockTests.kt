@@ -1,5 +1,6 @@
 package com.gildedrose
 
+import App
 import com.gildedrose.domain.Features
 import com.gildedrose.domain.Item
 import com.gildedrose.domain.Price
@@ -33,7 +34,10 @@ internal class ListStockTests {
     @Test
     fun `list stock`(approver: Approver) =
         with(
-            Fixture(stockList, now = Instant.parse("2023-03-01T12:00:00Z"))
+            App().fixture(
+                now = Instant.parse("2023-03-01T12:00:00Z"),
+                initialStockList = stockList
+            )
         ) {
             approver.assertApproved(routes(Request(GET, "/")), OK)
         }
@@ -48,11 +52,12 @@ internal class ListStockTests {
             }
         }
         with(
-            Fixture(
-                initialStockList = stockList,
-                now = Instant.parse("2023-03-01T12:00:00Z"),
+            App(
                 pricing = pricing,
-                features = Features(pricing = true),
+                features = Features(pricing = true)
+            ).fixture(
+                now = Instant.parse("2023-03-01T12:00:00Z"),
+                initialStockList = stockList
             )
         ) {
             approver.assertApproved(routes(Request(GET, "/")), OK)
@@ -62,7 +67,10 @@ internal class ListStockTests {
     @Test
     fun `list stock sees file updates`(approver: Approver) =
         with(
-            Fixture(stockList, now = Instant.parse("2023-03-01T12:00:00Z"))
+            App().fixture(
+                now = Instant.parse("2023-03-01T12:00:00Z"),
+                initialStockList = stockList
+            )
         ) {
             assertEquals(
                 OK,
@@ -77,7 +85,10 @@ internal class ListStockTests {
     fun `doesn't update when last modified date is today`(approver: Approver) {
         val sameDayAsLastModifiedDate = Instant.parse("2023-03-13T23:59:59Z")
         with(
-            Fixture(stockList, now = sameDayAsLastModifiedDate)
+            App().fixture(
+                now = sameDayAsLastModifiedDate,
+                initialStockList = stockList
+            )
         ) {
             approver.assertApproved(routes(Request(GET, "/")), OK)
             assertEquals(stockList, load())
@@ -88,7 +99,10 @@ internal class ListStockTests {
     fun `updates when last modified date was yesterday`(approver: Approver) {
         val nextDayFromLastModifiedDate = Instant.parse("2023-03-14T00:00:00Z")
         with(
-            Fixture(stockList, now = nextDayFromLastModifiedDate)
+            App().fixture(
+                now = nextDayFromLastModifiedDate,
+                initialStockList = stockList
+            )
         ) {
             approver.assertApproved(routes(Request(GET, "/")), OK)
             Assertions.assertNotEquals(stockList, load())
@@ -98,7 +112,10 @@ internal class ListStockTests {
     @Test
     fun `reports errors`(approver: Approver) {
         with(
-            Fixture(stockList, now = Instant.parse("2023-03-14T00:00:00Z"))
+            App().fixture(
+                now = Instant.parse("2023-03-14T00:00:00Z"),
+                initialStockList = stockList
+            )
         ) {
             stockFile.writeText(stockFile.readText().replace("banana", ""))
             approver.assertApproved(routes(Request(GET, "/")), INTERNAL_SERVER_ERROR)
