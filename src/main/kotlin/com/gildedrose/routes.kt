@@ -13,6 +13,7 @@ import com.gildedrose.persistence.StockListLoadingError
 import dev.forkhandles.result4k.Result
 import dev.forkhandles.result4k.map
 import dev.forkhandles.result4k.resultFrom
+import londonZoneId
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method
 import org.http4k.core.then
@@ -21,9 +22,6 @@ import org.http4k.routing.bind
 import org.http4k.routing.routes
 import java.io.File
 import java.time.Instant
-import java.time.ZoneId
-
-private val londonZoneId = ZoneId.of("Europe/London")
 
 fun routesFor(
     stockFile: File,

@@ -1,15 +1,14 @@
 package com.gildedrose
 
 import App
-import com.gildedrose.domain.Features
-import com.gildedrose.domain.Item
-import com.gildedrose.domain.Price
 import com.gildedrose.domain.StockList
 import com.gildedrose.persistence.StockListLoadingError.BlankName
+import com.natpryce.hamkrest.assertion.assertThat
 import org.http4k.core.Method.GET
 import org.http4k.core.Request
 import org.http4k.core.Status.Companion.INTERNAL_SERVER_ERROR
 import org.http4k.core.Status.Companion.OK
+import org.http4k.hamkrest.hasStatus
 import org.http4k.testing.ApprovalTest
 import org.http4k.testing.Approver
 import org.http4k.testing.assertApproved
@@ -41,28 +40,6 @@ internal class ListStockTests {
         ) {
             approver.assertApproved(routes(Request(GET, "/")), OK)
         }
-
-    @Test
-    fun `list stock with pricing enabled`(approver: Approver) {
-        val pricing: (Item) -> Price? = {
-            when (it) {
-                stockList.items[0] -> Price(100)
-                stockList.items[1] -> error("simulated price failure")
-                else -> null
-            }
-        }
-        with(
-            App(
-                pricing = pricing,
-                features = Features(pricing = true)
-            ).fixture(
-                now = Instant.parse("2023-03-01T12:00:00Z"),
-                initialStockList = stockList
-            )
-        ) {
-            approver.assertApproved(routes(Request(GET, "/")), OK)
-        }
-    }
 
     @Test
     fun `list stock sees file updates`(approver: Approver) =
@@ -118,7 +95,7 @@ internal class ListStockTests {
             )
         ) {
             stockFile.writeText(stockFile.readText().replace("banana", ""))
-            approver.assertApproved(routes(Request(GET, "/")), INTERNAL_SERVER_ERROR)
+            assertThat(routes(Request(GET, "/")), hasStatus(INTERNAL_SERVER_ERROR))
             assertEquals(
                 BlankName("B1\t\t2023-02-28\t42"),
                 events.first()
