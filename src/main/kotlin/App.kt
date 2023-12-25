@@ -2,10 +2,14 @@
 import com.gildedrose.domain.Features
 import com.gildedrose.domain.Item
 import com.gildedrose.domain.Price
+import com.gildedrose.domain.StockList
 import com.gildedrose.foundation.Analytics
 import com.gildedrose.foundation.loggingAnalytics
 import com.gildedrose.http.serverFor
+import com.gildedrose.persistence.Stock
 import com.gildedrose.routesFor
+import dev.forkhandles.result4k.map
+import dev.forkhandles.result4k.resultFrom
 import java.io.File
 import java.time.Instant
 import java.time.ZoneId
@@ -22,19 +26,27 @@ data class App(
     val clock: () -> Instant = Instant::now,
     val analytics: Analytics = stdOutAnalytics,
 ) {
-
+    private val stock = Stock(stockFile, londonZoneId, Item::updatedBy)
     val routes = routesFor(
-        stockFile = stockFile,
         clock = clock,
         analytics = analytics,
         features = features,
-        pricing = pricing
+        listing = ::loadStockList
     )
+    private val server = serverFor(port = port, routes = routes)
 
-    val server = serverFor(port = port, routes = routes)
+    fun loadStockList(now: Instant = clock()) = stock.stockList(now).map { it.pricedBy(pricing) }
+
     fun start() {
         server.start()
     }
 }
+
 @Suppress("UNUSED_PARAMETER")
 fun noOpPricing(item: Item): Price? = null
+
+private fun StockList.pricedBy(pricing: (Item) -> Price?): StockList =
+    this.copy(items = items.map { it.pricedBy(pricing) })
+
+private fun Item.pricedBy(pricing: (Item) -> Price?): Item =
+    this.copy(price = resultFrom { pricing(this) })

@@ -25,7 +25,7 @@ internal fun App.fixture(
 ).apply { save(initialStockList) }
 
 class Fixture(
-    private val app: App,
+    internal val app: App,
     val events: MutableList<Any>,
 ) {
 
