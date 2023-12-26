@@ -19,24 +19,33 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.Instant
+import java.time.LocalDate
 
 @ExtendWith(ApprovalTest::class)
 internal class ListStockTests {
 
-    private val stockList = StockList(
-        lastModified = Instant.parse("2023-03-13T12:00:00Z"),
-        items = listOf(
-            testItem("banana", march1.minusDays(1), 42),
-            testItem("kumquat", march1.plusDays(1), 101),
-            testItem("undated", null, 50)
+    private companion object {
+
+        private val lastModified = Instant.parse("2023-03-13T12:00:00Z")
+        private val sameDayAsLastModifiedDate = Instant.parse("2023-03-13T23:59:59Z")
+        private val nextDayFromLastModifiedDate = Instant.parse("2023-03-14T00:00:00Z")
+
+        private val stockList = StockList(
+            lastModified = lastModified,
+            items = listOf(
+                testItem("banana", LocalDate.parse("2023-03-12"), 42),
+                testItem("kumquat", LocalDate.parse("2023-03-14"), 101),
+                testItem("undated", null, 50)
+            )
         )
-    )
+        private val baseApp = App()
+    }
 
     @Test
     fun `list stock`(approver: Approver) =
         with(
-            App().fixture(
-                now = Instant.parse("2023-03-01T12:00:00Z"),
+            baseApp.fixture(
+                now = sameDayAsLastModifiedDate,
                 initialStockList = stockList
             )
         ) {
@@ -50,8 +59,8 @@ internal class ListStockTests {
     @Test
     fun `list stock sees file updates`() =
         with(
-            App().fixture(
-                now = Instant.parse("2023-03-01T12:00:00Z"),
+            baseApp.fixture(
+                now = sameDayAsLastModifiedDate,
                 initialStockList = stockList
             )
         ) {
@@ -67,9 +76,8 @@ internal class ListStockTests {
 
     @Test
     fun `doesn't update when last modified date is today`() {
-        val sameDayAsLastModifiedDate = Instant.parse("2023-03-13T23:59:59Z")
         with(
-            App().fixture(
+            baseApp.fixture(
                 now = sameDayAsLastModifiedDate,
                 initialStockList = stockList
             )
@@ -84,9 +92,8 @@ internal class ListStockTests {
 
     @Test
     fun `updates when last modified date was yesterday`() {
-        val nextDayFromLastModifiedDate = Instant.parse("2023-03-14T00:00:00Z")
         with(
-            App().fixture(
+            baseApp.fixture(
                 now = nextDayFromLastModifiedDate,
                 initialStockList = stockList
             )
@@ -94,8 +101,8 @@ internal class ListStockTests {
             val updatedStockList = StockList(
                 lastModified = nextDayFromLastModifiedDate,
                 items = listOf(
-                    testItem("banana", march1.minusDays(1), 40),
-                    testItem("kumquat", march1.plusDays(1), 99),
+                    testItem("banana", LocalDate.parse("2023-03-12"), 40),
+                    testItem("kumquat", LocalDate.parse("2023-03-14"), 100),
                     testItem("undated", null, 50)
                 )
             )
@@ -110,12 +117,12 @@ internal class ListStockTests {
     @Test
     fun `reports errors`(approver: Approver) {
         with(
-            App().fixture(
-                now = Instant.parse("2023-03-14T00:00:00Z"),
+            baseApp.fixture(
+                now = sameDayAsLastModifiedDate,
                 initialStockList = stockList
             )
         ) {
-            val expectedFailure = BlankName("B1\t\t2023-02-28\t42")
+            val expectedFailure = BlankName("B1\t\t2023-03-12\t42")
 
             stockFile.writeText(stockFile.readText().replace("banana", ""))
 
