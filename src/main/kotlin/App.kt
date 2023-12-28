@@ -23,7 +23,7 @@ data class App(
     val analytics: Analytics = stdOutAnalytics,
 ) {
     private val stock = Stock(stockFile, londonZoneId, Item::updatedBy)
-    private val pricedLoader = PricedStockedLoader(stock::stockList, pricing)
+    private val pricedLoader = PricedStockedLoader(stock::stockList, pricing, analytics)
     val routes = routesFor(
         clock = clock,
         analytics = analytics,

@@ -56,8 +56,11 @@ internal class RetryingTests {
         )
     }
 
-    private fun succeedAfter(exceptionCount: Int): (String) -> String {
-        var countdown = exceptionCount
-        return { if (countdown-- == 0) it else error("deliberate") }
-    }
+    private fun succeedAfter(exceptionCount: Int): (String) -> String =
+        succeedAfter(exceptionCount = exceptionCount, raiseError = { error("deliberate") }) { it }
+}
+
+fun <T, R> succeedAfter(exceptionCount: Int, raiseError: () -> Nothing, f: (T) -> R): (T) -> R {
+    var countdown = exceptionCount
+    return { if (countdown-- == 0) f(it) else raiseError() }
 }
