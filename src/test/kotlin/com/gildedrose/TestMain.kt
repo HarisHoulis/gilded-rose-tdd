@@ -9,7 +9,7 @@ import java.net.URI
 fun main() {
     App(
         port = 8088,
-        features = Features(pricing = true),
+        features = Features(),
         pricing = retry(
             retries = 1,
             function = valueElfClient(URI.create("http://value-elf.com:8080/prices"))

@@ -5,6 +5,7 @@ import com.gildedrose.domain.StockList
 import com.gildedrose.march1
 import com.gildedrose.persistence.StockListLoadingError
 import com.gildedrose.testItem
+import com.gildedrose.withPrice
 import dev.forkhandles.result4k.Failure
 import dev.forkhandles.result4k.Success
 import londonZoneId
@@ -24,52 +25,31 @@ internal class StockListRenderingTests {
         val stockList = StockList(
             lastModified = sometime,
             items = listOf(
-                testItem("banana", march1.minusDays(1), 42),
-                testItem("kumquat", march1.plusDays(1), 101),
+                testItem("banana", march1.minusDays(1), 42)
+                    .withPrice(Price(100)),
+                testItem("kumquat", march1.plusDays(1), 101)
+                    .withPrice(Failure(RuntimeException("simulated price failure"))),
                 testItem("undated", null, 50)
+                    .withPrice(null)
             )
         )
-
-        val result = render(
-            stockListResult = Success(value = stockList),
-            now = Instant.parse("2023-03-01T12:00:00Z"),
-            zoneId = londonZoneId,
-            isPricingEnabled = false
-        )
-        approver.assertApproved(result)
-    }
-
-    @Test
-    fun `list stock with pricing enabled`(approver: Approver) {
-        val stockList = StockList(
-            lastModified = sometime,
-            items = listOf(
-                testItem("banana", march1.minusDays(1), 42).copy(price = Success(Price(100))),
-                testItem(
-                    "kumquat",
-                    march1.plusDays(1),
-                    101
-                ).copy(price = Failure(RuntimeException("simulated price failure"))),
-                testItem("undated", null, 50).copy(price = Success(null))
+        approver.assertApproved(
+            render(
+                stockListResult = Success(value = stockList),
+                now = Instant.parse("2023-03-01T12:00:00Z"),
+                zoneId = londonZoneId
             )
         )
-        val result = render(
-            stockListResult = Success(value = stockList),
-            now = Instant.parse("2023-03-01T12:00:00Z"),
-            zoneId = londonZoneId,
-            isPricingEnabled = true
-        )
-        approver.assertApproved(result)
     }
 
     @Test
     fun `reports errors`(approver: Approver) {
-        val result = render(
-            stockListResult = Failure(StockListLoadingError.BlankName("line")),
-            now = Instant.parse("2023-03-01T12:00:00Z"),
-            zoneId = londonZoneId,
-            isPricingEnabled = false
+        approver.assertApproved(
+            render(
+                stockListResult = Failure(StockListLoadingError.BlankName("line")),
+                now = Instant.parse("2023-03-01T12:00:00Z"),
+                zoneId = londonZoneId
+            )
         )
-        approver.assertApproved(result)
     }
 }

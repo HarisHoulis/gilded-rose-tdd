@@ -11,10 +11,9 @@ import java.time.ZoneId
 fun listHandler(
     clock: () -> Instant,
     zoneId: ZoneId,
-    isPricingEnabled: Boolean,
     listing: (Instant) -> Result<StockList, StockListLoadingError>,
 ): HttpHandler = { _ ->
     val now = clock()
     val stockListResult = listing(now)
-    render(stockListResult, now, zoneId, isPricingEnabled)
+    render(stockListResult, now, zoneId)
 }
