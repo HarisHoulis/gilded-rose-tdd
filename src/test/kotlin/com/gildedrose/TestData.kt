@@ -5,6 +5,7 @@ import com.gildedrose.domain.Item
 import com.gildedrose.domain.NonBlankString
 import com.gildedrose.domain.Price
 import com.gildedrose.domain.Quality
+import com.gildedrose.domain.StockList
 import dev.forkhandles.result4k.Result4k
 import dev.forkhandles.result4k.Success
 import java.time.LocalDate
@@ -38,3 +39,5 @@ fun initialsFrom(name: String): String =
 fun Item.withPrice(price: Price?) = withPrice(Success(price))
 
 fun Item.withPrice(price: Result4k<Price?, Exception>) = copy(price = price)
+
+fun StockList.withItems(vararg items: Item): StockList = copy(items = items.toList())

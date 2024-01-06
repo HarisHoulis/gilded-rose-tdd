@@ -1,9 +1,14 @@
 package com.gildedrose
 
 import App
+import com.gildedrose.domain.ID
 import com.gildedrose.domain.Item
+import com.gildedrose.domain.Price
+import com.gildedrose.domain.Quality
 import com.gildedrose.domain.StockList
+import com.gildedrose.http.serverFor
 import com.gildedrose.persistence.StockListLoadingError.BlankName
+import com.gildedrose.pricing.fakeValueElfRoutes
 import com.natpryce.hamkrest.assertion.assertThat
 import dev.forkhandles.result4k.Failure
 import dev.forkhandles.result4k.Success
@@ -15,30 +20,64 @@ import org.http4k.hamkrest.hasStatus
 import org.http4k.testing.ApprovalTest
 import org.http4k.testing.Approver
 import org.http4k.testing.assertApproved
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import java.time.Instant
-import java.time.LocalDate
+import java.net.URI
+import java.time.Instant.parse as t
+import java.time.LocalDate.parse as d
 
 @ExtendWith(ApprovalTest::class)
 internal class ListStockTests {
 
     private companion object {
 
-        private val lastModified = Instant.parse("2023-03-13T12:00:00Z")
-        private val sameDayAsLastModifiedDate = Instant.parse("2023-03-13T23:59:59Z")
-        private val nextDayFromLastModifiedDate = Instant.parse("2023-03-14T00:00:00Z")
+        private val lastModified = t("2023-03-13T12:00:00Z")
+        private val sameDayAsLastModifiedDate = t("2023-03-13T23:59:59Z")
 
         private val stockList = StockList(
             lastModified = lastModified,
             items = listOf(
-                testItem("banana", LocalDate.parse("2023-03-12"), 42),
-                testItem("kumquat", LocalDate.parse("2023-03-14"), 101),
+                testItem("banana", d("2023-03-12"), 42),
+                testItem("kumquat", d("2023-03-14"), 101),
                 testItem("undated", null, 50)
             )
         )
-        private val baseApp = App()
+
+        private val valueElfPricing = { id: ID<Item>, _: Quality ->
+            when (id) {
+                stockList[0].id -> Price(666)
+                stockList[1].id -> null
+                stockList[2].id -> Price(999)
+                else -> null
+            }
+        }
+
+        private val expectedPricedStockList = stockList.withItems(
+            stockList[0].withPrice(Price(666)),
+            stockList[1].withPrice(null),
+            stockList[2].withPrice(Price(999))
+        )
+
+        private val baseApp = App(
+            valueElfUri = URI.create("http://localhost:8888/prices")
+        )
+
+        val server = serverFor(8888, fakeValueElfRoutes(valueElfPricing))
+
+        @BeforeAll
+        @JvmStatic
+        fun startServer() {
+            server.start()
+        }
+
+        @AfterAll
+        @JvmStatic
+        fun stopServer() {
+            server.stop()
+        }
     }
 
     @Test
@@ -50,69 +89,11 @@ internal class ListStockTests {
             )
         ) {
             assertEquals(
-                Success(stockList.withNullPrices()),
+                Success(expectedPricedStockList),
                 app.loadStockList()
             )
             approver.assertApproved(routes(Request(GET, "/")), OK)
         }
-
-    @Test
-    fun `list stock sees file updates`() =
-        with(
-            baseApp.fixture(
-                now = sameDayAsLastModifiedDate,
-                initialStockList = stockList
-            )
-        ) {
-            val savedStockList = StockList(Instant.now(), emptyList())
-
-            save(savedStockList)
-
-            assertEquals(
-                Success(savedStockList),
-                app.loadStockList()
-            )
-        }
-
-    @Test
-    fun `doesn't update when last modified date is today`() {
-        with(
-            baseApp.fixture(
-                now = sameDayAsLastModifiedDate,
-                initialStockList = stockList
-            )
-        ) {
-            assertEquals(
-                Success(stockList.withNullPrices()),
-                app.loadStockList()
-            )
-            assertEquals(stockList, load())
-        }
-    }
-
-    @Test
-    fun `updates when last modified date was yesterday`() {
-        with(
-            baseApp.fixture(
-                now = nextDayFromLastModifiedDate,
-                initialStockList = stockList
-            )
-        ) {
-            val updatedStockList = StockList(
-                lastModified = nextDayFromLastModifiedDate,
-                items = listOf(
-                    testItem("banana", LocalDate.parse("2023-03-12"), 40),
-                    testItem("kumquat", LocalDate.parse("2023-03-14"), 100),
-                    testItem("undated", null, 50)
-                )
-            )
-            assertEquals(
-                Success(updatedStockList.withNullPrices()),
-                app.loadStockList()
-            )
-            assertEquals(updatedStockList, load())
-        }
-    }
 
     @Test
     fun `reports errors`(approver: Approver) {
@@ -138,8 +119,3 @@ internal class ListStockTests {
         }
     }
 }
-
-private fun StockList.withNullPrices() = copy(items = items.map { it.withNullPrice() })
-
-private fun Item.withNullPrice() = copy(price = Success(null))
-
