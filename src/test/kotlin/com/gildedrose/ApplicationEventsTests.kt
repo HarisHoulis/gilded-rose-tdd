@@ -4,6 +4,7 @@ import App
 import com.gildedrose.domain.StockList
 import com.gildedrose.foundation.UncaughtExceptionEvent
 import com.gildedrose.http.HttpEvent
+import com.gildedrose.testing.only
 import com.natpryce.hamkrest.and
 import com.natpryce.hamkrest.assertion.assertThat
 import org.http4k.core.Method.GET
@@ -55,9 +56,3 @@ class ApplicationEventsTests {
         }
     }
 }
-
-private fun <E> Collection<E>.only(): E =
-    when (size) {
-        1 -> first()
-        else -> error("Expected one item, got $this")
-    }

@@ -15,6 +15,7 @@ import org.http4k.core.then
 import org.http4k.filter.ServerFilters
 import org.http4k.routing.bind
 import org.http4k.routing.routes
+import java.time.Duration
 import java.time.Instant
 
 fun routesFor(
@@ -23,7 +24,7 @@ fun routesFor(
     @Suppress("UNUSED_PARAMETER") features: Features,
     listing: (Instant) -> Result<StockList, StockListLoadingError>,
 ): HttpHandler = ServerFilters.RequestTracing()
-    .then(reportHttpTransactions(analytics))
+    .then(reportHttpTransactions(Duration.ofSeconds(1), analytics))
     .then(catchAll(analytics))
     .then(ResponseErrors.reportTo(analytics))
     .then(routes(
