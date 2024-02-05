@@ -1,8 +1,5 @@
 package com.gildedrose.foundation
 
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import java.util.concurrent.Callable
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.ForkJoinPool
@@ -35,11 +32,4 @@ fun <T, R> Iterable<T>.parallelMapThreadPool(threadPool: ExecutorService, f: (T)
         threadPool.submit(Callable { f(it) })
     }.map { future ->
         future.get()
-    }
-
-suspend fun <T, R> Iterable<T>.parallelMapCoroutines(f: suspend (T) -> R) =
-    coroutineScope {
-        map {
-            async { f(it) }
-        }.awaitAll()
     }
