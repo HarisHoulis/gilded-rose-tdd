@@ -35,6 +35,8 @@ dependencies {
     testImplementation 'com.approvaltests:approvaltests:22.3.3'
     testImplementation "org.http4k:http4k-testing-approval"
     testImplementation "org.http4k:http4k-testing-hamkrest"
+
+    testImplementation("org.jetbrains.kotlin:kotlin-test")
 }
 
 group = 'com.gildedrose'
