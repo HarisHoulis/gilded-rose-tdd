@@ -1,6 +1,5 @@
 package com.gildedrose.http
 
-import com.gildedrose.testing.only
 import org.http4k.core.Method
 import org.http4k.core.Request
 import org.http4k.core.Response
@@ -24,7 +23,7 @@ internal class ReportHttpTransactionTests {
             Response(Status.OK)
         }.invoke(Request(Method.GET, "/"))
 
-        with(events.only() as HttpEvent) {
+        with(events.single() as HttpEvent) {
             assertAll(
                 { assertEquals("/", uri) },
                 { assertEquals(Method.GET.toString(), method) },

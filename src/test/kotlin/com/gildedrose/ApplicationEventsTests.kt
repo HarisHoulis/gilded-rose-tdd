@@ -4,7 +4,6 @@ import App
 import com.gildedrose.domain.StockList
 import com.gildedrose.foundation.UncaughtExceptionEvent
 import com.gildedrose.http.HttpEvent
-import com.gildedrose.testing.only
 import com.natpryce.hamkrest.and
 import com.natpryce.hamkrest.assertion.assertThat
 import org.http4k.core.Method.GET
@@ -52,7 +51,7 @@ class ApplicationEventsTests {
             val response = routes(Request(GET, "/"))
 
             assertEquals(OK, response.status)
-            assertEquals(HttpEvent::class, events.only()::class)
+            assertEquals(HttpEvent::class, events.single()::class)
         }
     }
 }
