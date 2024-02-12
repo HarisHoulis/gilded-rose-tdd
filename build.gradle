@@ -37,6 +37,7 @@ dependencies {
     testImplementation "org.http4k:http4k-testing-hamkrest"
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
+    testImplementation("io.strikt:strikt-core:0.34.1")
 }
 
 group = 'com.gildedrose'
