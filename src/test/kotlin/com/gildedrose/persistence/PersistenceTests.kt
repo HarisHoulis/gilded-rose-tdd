@@ -1,6 +1,7 @@
 package com.gildedrose.persistence
 
 import com.gildedrose.domain.StockList
+import com.gildedrose.itemForTest
 import com.gildedrose.march1
 import com.gildedrose.persistence.StockListLoadingError.BlankID
 import com.gildedrose.persistence.StockListLoadingError.BlankName
@@ -8,7 +9,6 @@ import com.gildedrose.persistence.StockListLoadingError.CouldntParseLastModified
 import com.gildedrose.persistence.StockListLoadingError.CouldntParseQuality
 import com.gildedrose.persistence.StockListLoadingError.CouldntParseSellByDate
 import com.gildedrose.persistence.StockListLoadingError.NotEnoughFields
-import com.gildedrose.testItem
 import dev.forkhandles.result4k.Failure
 import dev.forkhandles.result4k.Success
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -22,9 +22,9 @@ class PersistenceTests {
     private val now = Instant.now()
 
     private val items = listOf(
-        testItem("banana", march1, 42),
-        testItem("peach", march1.plusDays(1), 100),
-        testItem("undated", null, 50)
+        itemForTest("banana", march1, 42),
+        itemForTest("peach", march1.plusDays(1), 100),
+        itemForTest("undated", null, 50)
     )
 
     @Test

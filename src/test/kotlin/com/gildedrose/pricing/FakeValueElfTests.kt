@@ -5,8 +5,8 @@ import com.gildedrose.domain.Item
 import com.gildedrose.domain.Price
 import com.gildedrose.domain.Quality
 import com.gildedrose.http.serverFor
+import com.gildedrose.itemForTest
 import com.gildedrose.pricing.ValueElfContract.Fixture
-import com.gildedrose.testItem
 import org.http4k.client.ApacheClient
 import org.http4k.core.Response
 import org.http4k.core.Status
@@ -46,7 +46,7 @@ internal class FakeValueElfHttpTests :
     @Test
     fun `actually call server`() {
         val client: (Item) -> Price? = valueElfClient(baseFixture.aUri)
-        val item = testItem("banana", "doesn't matter", LocalDate.now(), 9)
+        val item = itemForTest("banana", "doesn't matter", LocalDate.now(), 9)
 
         server.start().use {
             Assertions.assertEquals(

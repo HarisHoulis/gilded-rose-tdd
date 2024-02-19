@@ -2,9 +2,9 @@ package com.gildedrose.rendering
 
 import com.gildedrose.domain.Price
 import com.gildedrose.domain.StockList
+import com.gildedrose.itemForTest
 import com.gildedrose.march1
 import com.gildedrose.persistence.StockListLoadingError
-import com.gildedrose.testItem
 import com.gildedrose.withPrice
 import dev.forkhandles.result4k.Failure
 import dev.forkhandles.result4k.Success
@@ -25,11 +25,11 @@ internal class StockListRenderingTests {
         val stockList = StockList(
             lastModified = sometime,
             items = listOf(
-                testItem("banana", march1.minusDays(1), 42)
+                itemForTest("banana", march1.minusDays(1), 42)
                     .withPrice(Price(100)),
-                testItem("kumquat", march1.plusDays(1), 101)
+                itemForTest("kumquat", march1.plusDays(1), 101)
                     .withPrice(Failure(RuntimeException("simulated price failure"))),
-                testItem("undated", null, 50)
+                itemForTest("undated", null, 50)
                     .withPrice(null)
             )
         )

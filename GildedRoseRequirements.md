@@ -75,12 +75,12 @@ interfaces to the required magic, we eventually need to ask all three.
 
 For now though, just get the price from Value Elf and display it in the stock list screen.
 
-## ▶️ Speed Up Stock Listing
+## ✓ Speed Up Stock Listing
 
 Listing items was fast enough, but now that we are adding prices it's too slow (~3s). Can we make it
 under half a second?
 
-## 🔲 Display Item Price From Multiple Sources
+## ❌ Display Item Price From Multiple Sources
 
 Fetch the price from Price-O-Matic and WeBuyAnyMagicalItem as well as Value Elf.
 
@@ -88,3 +88,10 @@ If two or more agree use that value, otherwise the average. If any service is do
 respond in time) use those that aren't.
 
 Display the price in the stock list screen.
+
+## □ Add and Remove Items from the Stock List
+
+We are currently reflecting (and updating the quality in) an Excel TSV file that I am editing by
+hand.
+
+I'd like a way to add and remove items from the stock list through the software.

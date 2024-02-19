@@ -40,9 +40,9 @@ internal class ListStockTests {
         private val stockList = StockList(
             lastModified = lastModified,
             items = listOf(
-                testItem("banana", d("2023-03-12"), 42),
-                testItem("kumquat", d("2023-03-14"), 101),
-                testItem("undated", null, 50)
+                itemForTest("banana", d("2023-03-12"), 42),
+                itemForTest("kumquat", d("2023-03-14"), 101),
+                itemForTest("undated", null, 50)
             )
         )
 

@@ -12,13 +12,13 @@ import java.time.LocalDate
 
 val march1: LocalDate = LocalDate.parse("2023-03-01")
 
-fun testItem(
+fun itemForTest(
     name: String,
     sellByDate: LocalDate?,
     quality: Int,
-): Item = testItem(initialsFrom(name) + "1", name, sellByDate, quality)
+): Item = itemForTest(initialsFrom(name) + "1", name, sellByDate, quality)
 
-fun testItem(
+fun itemForTest(
     id: String,
     name: String,
     sellByDate: LocalDate?,

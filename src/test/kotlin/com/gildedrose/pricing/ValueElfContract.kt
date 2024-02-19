@@ -1,8 +1,8 @@
 package com.gildedrose.pricing
 
 import com.gildedrose.domain.Price
+import com.gildedrose.itemForTest
 import com.gildedrose.pricing.FixtureResolver.FixtureSource
-import com.gildedrose.testItem
 import com.natpryce.hamkrest.assertion.assertThat
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method
@@ -29,8 +29,8 @@ abstract class ValueElfContract(
         val expectedPrice: Price,
     ) {
         val aUri: URI = URI.create("http://localhost:8888/prices")
-        val aFoundItem = testItem("banana", "doesn't matter", LocalDate.now(), 9)
-        val aNotFoundItem = testItem("not-such", "doesn't matter", LocalDate.now(), 9)
+        val aFoundItem = itemForTest("banana", "doesn't matter", LocalDate.now(), 9)
+        val aNotFoundItem = itemForTest("not-such", "doesn't matter", LocalDate.now(), 9)
 
         val client = valueElfClient(uri, handler)
     }

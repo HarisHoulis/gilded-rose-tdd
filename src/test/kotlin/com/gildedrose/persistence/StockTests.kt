@@ -3,8 +3,8 @@ package com.gildedrose.persistence
 import App
 import com.gildedrose.domain.StockList
 import com.gildedrose.fixture
+import com.gildedrose.itemForTest
 import com.gildedrose.march1
-import com.gildedrose.testItem
 import dev.forkhandles.result4k.valueOrNull
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -19,8 +19,8 @@ class StockTests {
     private val initialStockList = StockList(
         lastModified = Instant.parse("2023-03-13T23:59:59Z"),
         items = listOf(
-            testItem("banana", march1.minusDays(1), 42),
-            testItem("kumquat", march1.plusDays(1), 101)
+            itemForTest("banana", march1.minusDays(1), 42),
+            itemForTest("kumquat", march1.plusDays(1), 101)
         )
     )
     private val fixture = App().fixture(
@@ -45,8 +45,8 @@ class StockTests {
         val expected = StockList(
             lastModified = now,
             items = listOf(
-                testItem("banana", march1.minusDays(1), 41),
-                testItem("kumquat", march1.plusDays(1), 100)
+                itemForTest("banana", march1.minusDays(1), 41),
+                itemForTest("kumquat", march1.plusDays(1), 100)
             )
         )
 
@@ -60,8 +60,8 @@ class StockTests {
         val expected = StockList(
             lastModified = now,
             items = listOf(
-                testItem("banana", march1.minusDays(1), 40),
-                testItem("kumquat", march1.plusDays(1), 99)
+                itemForTest("banana", march1.minusDays(1), 40),
+                itemForTest("kumquat", march1.plusDays(1), 99)
             )
         )
 
