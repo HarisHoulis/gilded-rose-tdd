@@ -34,7 +34,7 @@ dependencies {
     implementation 'org.jetbrains.exposed:exposed-jdbc:0.48.0'
     implementation 'org.jetbrains.exposed:exposed-java-time:0.48.0'
     implementation "org.postgresql:postgresql:42.7.2"
-    implementation "com.zaxxer:HikariCP:5.0.1"
+    implementation "com.zaxxer:HikariCP:5.1.0"
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.2'
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.10.2'
