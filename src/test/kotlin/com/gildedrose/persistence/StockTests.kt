@@ -1,8 +1,7 @@
 package com.gildedrose.persistence
 
-import App
+import com.gildedrose.com.gildedrose.persistence.InMemoryItems
 import com.gildedrose.domain.StockList
-import com.gildedrose.fixture
 import com.gildedrose.itemForTest
 import com.gildedrose.march1
 import dev.forkhandles.result4k.valueOrNull
@@ -14,7 +13,7 @@ import java.util.concurrent.Callable
 import java.util.concurrent.CyclicBarrier
 import java.util.concurrent.Executors
 
-class StockTests {
+internal class StockTests {
 
     private val initialStockList = StockList(
         lastModified = Instant.parse("2023-03-13T23:59:59Z"),
@@ -23,12 +22,11 @@ class StockTests {
             itemForTest("kumquat", march1.plusDays(1), 101)
         )
     )
-    private val fixture = App().fixture(
-        now = initialStockList.lastModified,
-        initialStockList = initialStockList
-    )
+
+    private val items = InMemoryItems(initialStockList)
+
     private val stock = Stock(
-        items = StockFileItems(fixture.stockFile),
+        items = items,
         zoneId = ZoneId.of("Europe/London"),
         itemUpdate = { days, _ -> copy(quality = quality - days) }
     )
@@ -52,7 +50,7 @@ class StockTests {
         )
 
         assertEquals(expected, stock.stockList(now).valueOrNull())
-        assertEquals(expected, fixture.load())
+        assertEquals(expected, items.load().valueOrNull())
     }
 
     @Test
@@ -67,7 +65,7 @@ class StockTests {
         )
 
         assertEquals(expected, stock.stockList(now).valueOrNull())
-        assertEquals(expected, fixture.load())
+        assertEquals(expected, items.load().valueOrNull())
     }
 
     @Test
@@ -75,7 +73,7 @@ class StockTests {
         val now = Instant.parse("2023-03-12T00:00:01Z")
 
         assertEquals(initialStockList, stock.stockList(now).valueOrNull())
-        assertEquals(initialStockList, fixture.load())
+        assertEquals(initialStockList, items.load().valueOrNull())
     }
 
     @Test
