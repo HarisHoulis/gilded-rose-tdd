@@ -5,6 +5,7 @@ import com.gildedrose.foundation.Analytics
 import com.gildedrose.foundation.loggingAnalytics
 import com.gildedrose.http.serverFor
 import com.gildedrose.persistence.Stock
+import com.gildedrose.persistence.StockFileItems
 import com.gildedrose.pricing.valueElfClient
 import com.gildedrose.routesFor
 import java.io.File
@@ -24,7 +25,11 @@ data class App(
     val clock: () -> Instant = Instant::now,
     val analytics: Analytics = stdOutAnalytics,
 ) {
-    private val stock = Stock(stockFile, londonZoneId, Item::updatedBy)
+    private val stock = Stock(
+        items = StockFileItems(stockFile),
+        zoneId = londonZoneId,
+        itemUpdate = Item::updatedBy
+    )
     private val pricedLoader =
         PricedStockedLoader(stock::stockList, valueElfClient(valueElfUri), analytics)
     val routes = routesFor(

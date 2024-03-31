@@ -36,12 +36,12 @@ private val dataSource = PGSimpleDataSource().apply {
 private val db = Database.connect(dataSource)
 
 @Disabled("Can't run on CI for now")
-internal class ItemsTests {
+internal class PgStockFileItemsTests {
 
     private val item1 = itemForTest("id-1", "name", LocalDate.of(2023, 2, 14), 42)
     private val item2 = itemForTest("id-2", "another name", null, 99)
 
-    private val items = Items()
+    private val items = PgItems()
 
     @BeforeEach
     fun setUp() {
@@ -107,7 +107,7 @@ internal class ItemsTests {
     }
 }
 
-class Items {
+internal class PgItems {
     fun all(): List<Item> {
         return ItemsTable.all()
     }
@@ -137,14 +137,14 @@ class Items {
     }
 }
 
-object ItemsTable : Table() {
+internal object ItemsTable : Table() {
     val id: Column<String> = varchar("id", 100)
     val name: Column<String> = varchar("name", 100)
     val sellByDate: Column<LocalDate?> = date("sellByDate").nullable()
     val quality: Column<Int> = integer("quality")
 }
 
-fun ItemsTable.insert(item: Item) {
+internal fun ItemsTable.insert(item: Item) {
     insert {
         it[id] = item.id.toString()
         it[name] = item.name.toString()
@@ -153,7 +153,7 @@ fun ItemsTable.insert(item: Item) {
     }
 }
 
-fun ItemsTable.all() = selectAll().map(ResultRow::toItem)
+internal fun ItemsTable.all() = selectAll().map(ResultRow::toItem)
 
 private fun ResultRow.toItem() = Item(
     ID(this[ItemsTable.id]) ?: error("Could not parse id ${this[ItemsTable.id]}"),
@@ -161,4 +161,3 @@ private fun ResultRow.toItem() = Item(
     this[ItemsTable.sellByDate],
     Quality(this[ItemsTable.quality]) ?: error("Invalid quality ${this[ItemsTable.quality]}"),
 )
-
