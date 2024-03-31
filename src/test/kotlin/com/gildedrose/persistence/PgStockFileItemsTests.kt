@@ -33,7 +33,7 @@ private val dataSource = PGSimpleDataSource().apply {
     databaseName = "gilded-rose"
 }
 
-private val db = Database.connect(dataSource)
+internal val db = Database.connect(dataSource)
 
 @Disabled("Can't run on CI for now")
 internal class PgStockFileItemsTests {
@@ -137,14 +137,14 @@ internal class PgItems {
     }
 }
 
-internal object ItemsTable : Table() {
+private object ItemsTable : Table() {
     val id: Column<String> = varchar("id", 100)
     val name: Column<String> = varchar("name", 100)
     val sellByDate: Column<LocalDate?> = date("sellByDate").nullable()
     val quality: Column<Int> = integer("quality")
 }
 
-internal fun ItemsTable.insert(item: Item) {
+private fun ItemsTable.insert(item: Item) {
     insert {
         it[id] = item.id.toString()
         it[name] = item.name.toString()
@@ -153,7 +153,7 @@ internal fun ItemsTable.insert(item: Item) {
     }
 }
 
-internal fun ItemsTable.all() = selectAll().map(ResultRow::toItem)
+private fun ItemsTable.all() = selectAll().map(ResultRow::toItem)
 
 private fun ResultRow.toItem() = Item(
     ID(this[ItemsTable.id]) ?: error("Could not parse id ${this[ItemsTable.id]}"),
