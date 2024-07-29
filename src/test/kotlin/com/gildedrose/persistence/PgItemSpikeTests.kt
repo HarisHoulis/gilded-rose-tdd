@@ -6,7 +6,6 @@ import com.gildedrose.domain.NonBlankString
 import com.gildedrose.domain.Quality
 import com.gildedrose.itemForTest
 import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.Table
@@ -16,9 +15,8 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import org.postgresql.ds.PGSimpleDataSource
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty
 import strikt.api.expectCatching
 import strikt.api.expectThat
 import strikt.assertions.isA
@@ -27,15 +25,7 @@ import strikt.assertions.isEqualTo
 import strikt.assertions.isFailure
 import java.time.LocalDate
 
-private val dataSource = PGSimpleDataSource().apply {
-    user = "gilded"
-    password = "rose"
-    databaseName = "gilded-rose"
-}
-
-internal val db = Database.connect(dataSource)
-
-@Disabled("Can't run on CI for now")
+@EnabledIfSystemProperty(named = "isCI", matches = "false")
 internal class PgStockFileItemsTests {
 
     private val item1 = itemForTest("id-1", "name", LocalDate.of(2023, 2, 14), 42)
@@ -45,7 +35,7 @@ internal class PgStockFileItemsTests {
 
     @BeforeEach
     fun setUp() {
-        transaction(db) {
+        transaction(testDatabase) {
             SchemaUtils.drop(ItemsTable)
             SchemaUtils.createMissingTablesAndColumns(ItemsTable)
         }
@@ -53,11 +43,11 @@ internal class PgStockFileItemsTests {
 
     @Test
     fun `add item`() {
-        transaction(db) {
+        transaction(testDatabase) {
             expectThat(items.all()).isEmpty()
         }
 
-        transaction(db) {
+        transaction(testDatabase) {
             items.add(item1)
             items.add(item2)
             expectThat(items.all()).isEqualTo(listOf(item1, item2))
@@ -67,13 +57,13 @@ internal class PgStockFileItemsTests {
 
     @Test
     fun `find by id`() {
-        transaction(db) {
+        transaction(testDatabase) {
             items.add(item1)
             items.add(item2)
             expectThat(items.all()).isEqualTo(listOf(item1, item2))
         }
 
-        transaction(db) {
+        transaction(testDatabase) {
             expectThat(items.findById(ID<Item>("no-such-id")!!))
                 .isEqualTo(null)
             expectThat(items.findById(ID<Item>("id-1")!!))
@@ -84,22 +74,22 @@ internal class PgStockFileItemsTests {
 
     @Test
     fun update() {
-        transaction(db) {
+        transaction(testDatabase) {
             items.add(item1)
             items.add(item2)
         }
 
         val updatedItem = item1.copy(name = NonBlankString("new name")!!)
-        transaction(db) {
+        transaction(testDatabase) {
             items.update(updatedItem)
         }
 
-        transaction(db) {
+        transaction(testDatabase) {
             expectThat(items.findById(item1.id))
                 .isEqualTo(updatedItem)
         }
 
-        transaction(db) {
+        transaction(testDatabase) {
             expectCatching {
                 items.update(item1.copy(id = ID("no-such-id")!!))
             }.isFailure().isA<IllegalStateException>()
