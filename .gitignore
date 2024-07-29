@@ -13,3 +13,5 @@ bin/
 
 /out/
 /local.properties
+/gradle.properties
+/.kotlin/sessions/*
