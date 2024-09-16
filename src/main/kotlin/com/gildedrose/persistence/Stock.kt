@@ -10,23 +10,25 @@ import java.time.LocalDate
 import java.time.ZoneId
 
 class Stock(
-    private val items: Items,
+    private val items: Items<Nothing?>,
     private val zoneId: ZoneId,
     private val itemUpdate: Item.(days: Int, on: LocalDate) -> Item,
 ) {
     fun stockList(now: Instant): Result<StockList, StockListLoadingError> =
-        items.load().flatMap { loaded ->
-            val daysOutOfDate = loaded.lastModified.daysTo(now, zoneId)
-            when {
-                daysOutOfDate > 0L -> items.save(
-                    loaded.updated(
-                        now,
-                        daysOutOfDate.toInt(),
-                        LocalDate.ofInstant(now, zoneId)
+        items.inTransaction {
+            items.load().flatMap { loaded ->
+                val daysOutOfDate = loaded.lastModified.daysTo(now, zoneId)
+                when {
+                    daysOutOfDate > 0L -> items.save(
+                        stockList = loaded.updated(
+                            now,
+                            daysOutOfDate.toInt(),
+                            LocalDate.ofInstant(now, zoneId)
+                        ),
                     )
-                )
 
-                else -> Success(loaded)
+                    else -> Success(loaded)
+                }
             }
         }
 

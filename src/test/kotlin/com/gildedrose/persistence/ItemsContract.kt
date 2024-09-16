@@ -11,9 +11,10 @@ import strikt.assertions.isEqualTo
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-internal abstract class ItemsContract(val items: Items) {
-
-    val initialStockList = StockList(
+internal abstract class ItemsContract<TX>(
+    val items: Items<TX>,
+) {
+    private val initialStockList = StockList(
         lastModified = Instant.parse("2023-03-13T23:59:59Z"),
         items = listOf(
             itemForTest("banana", march1.minusDays(1), 42),
@@ -23,31 +24,35 @@ internal abstract class ItemsContract(val items: Items) {
 
     @Test
     fun `returns empty StockList before any save`() {
-        expectThat(items.load())
-            .isEqualTo(
-                Success(
-                    StockList(
-                        lastModified = Instant.EPOCH,
-                        items = emptyList()
+        items.inTransaction {
+            expectThat(items.load())
+                .isEqualTo(
+                    Success(
+                        StockList(
+                            lastModified = Instant.EPOCH,
+                            items = emptyList()
+                        )
                     )
                 )
-            )
+        }
     }
 
     @Test
     fun `returns last saved stockList`() {
-        items.save(initialStockList)
+        items.inTransaction {
+            items.save(initialStockList)
 
-        expectThat(items.load())
-            .isEqualTo(Success(initialStockList))
+            expectThat(items.load())
+                .isEqualTo(Success(initialStockList))
 
-        val modifiedStockList = initialStockList.copy(
-            lastModified = initialStockList.lastModified.plus(1, ChronoUnit.HOURS),
-            items = initialStockList.items.drop(1)
-        )
-        items.save(modifiedStockList)
+            val modifiedStockList = initialStockList.copy(
+                lastModified = initialStockList.lastModified.plus(1, ChronoUnit.HOURS),
+                items = initialStockList.items.drop(1)
+            )
+            items.save(modifiedStockList)
 
-        expectThat(items.load())
-            .isEqualTo(Success(modifiedStockList))
+            expectThat(items.load())
+                .isEqualTo(Success(modifiedStockList))
+        }
     }
 }

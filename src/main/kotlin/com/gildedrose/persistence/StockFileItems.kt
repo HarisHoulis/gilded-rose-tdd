@@ -7,10 +7,16 @@ import dev.forkhandles.result4k.Success
 import java.io.File
 import java.io.IOException
 
-class StockFileItems(private val stockFile: File) : Items {
-    override fun load(): Result<StockList, StockListLoadingError> = stockFile.loadItems()
+class StockFileItems(private val stockFile: File) : Items<Nothing?> {
 
-    override fun save(stockList: StockList): Result<StockList, StockListLoadingError.IO> =
+    override fun <R> inTransaction(block: context(Nothing?) () -> R): R = block(null)
+
+    context(Nothing?) override fun load(): Result<StockList, StockListLoadingError> =
+        stockFile.loadItems()
+
+    context(Nothing?) override fun save(
+        stockList: StockList,
+    ): Result<StockList, StockListLoadingError.IO> =
         try {
             val versionFile = File.createTempFile(
                 "${stockFile.nameWithoutExtension}-${stockList.lastModified}",

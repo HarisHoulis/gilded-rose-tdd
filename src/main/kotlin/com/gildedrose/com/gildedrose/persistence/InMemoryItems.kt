@@ -10,15 +10,19 @@ import java.util.concurrent.atomic.AtomicReference
 
 internal class InMemoryItems(
     stockList: StockList = StockList(lastModified = Instant.EPOCH, items = emptyList()),
-) : Items {
+) : Items<Nothing?> {
     private val stockList = AtomicReference(stockList)
 
-    override fun load(): Result<StockList, StockListLoadingError> {
+    context(Nothing?) override fun load(): Result<StockList, StockListLoadingError> {
         return Success(stockList.get())
     }
 
-    override fun save(stockList: StockList): Result<StockList, StockListLoadingError.IO> {
-        this.stockList.set(stockList)
+    override fun <R> inTransaction(block: context(Nothing?) () -> R): R = block(null)
+
+    context(Nothing?) override fun save(
+        stockList: StockList,
+    ): Result<StockList, StockListLoadingError.IO> {
+        this@InMemoryItems.stockList.set(stockList)
         return Success(stockList)
     }
 

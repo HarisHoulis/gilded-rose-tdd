@@ -56,4 +56,8 @@ test {
 
 kotlin {
     jvmToolchain(17)
+    compilerOptions.freeCompilerArgs.add("-Xcontext-receivers")
+    testing {
+        compilerOptions.freeCompilerArgs.add("-Xcontext-receivers")
+    }
 }

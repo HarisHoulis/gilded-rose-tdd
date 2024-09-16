@@ -50,7 +50,9 @@ internal class StockTests {
         )
 
         assertEquals(expected, stock.stockList(now).valueOrNull())
-        assertEquals(expected, items.load().valueOrNull())
+        items.inTransaction {
+            assertEquals(expected, items.load().valueOrNull())
+        }
     }
 
     @Test
@@ -65,7 +67,9 @@ internal class StockTests {
         )
 
         assertEquals(expected, stock.stockList(now).valueOrNull())
-        assertEquals(expected, items.load().valueOrNull())
+        items.inTransaction {
+            assertEquals(expected, items.load().valueOrNull())
+        }
     }
 
     @Test
@@ -73,7 +77,9 @@ internal class StockTests {
         val now = Instant.parse("2023-03-12T00:00:01Z")
 
         assertEquals(initialStockList, stock.stockList(now).valueOrNull())
-        assertEquals(initialStockList, items.load().valueOrNull())
+        items.inTransaction {
+            assertEquals(initialStockList, items.load().valueOrNull())
+        }
     }
 
     @Test

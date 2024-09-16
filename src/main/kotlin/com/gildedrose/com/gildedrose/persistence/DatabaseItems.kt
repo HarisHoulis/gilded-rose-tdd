@@ -13,6 +13,7 @@ import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.javatime.date
 import org.jetbrains.exposed.sql.javatime.timestamp
@@ -22,12 +23,17 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.Instant
 import java.time.LocalDate
 
-internal class DatabaseItems(private val database: Database) : Items {
-    override fun load(): Result<StockList, StockListLoadingError> = transaction(database) {
+internal class DatabaseItems(private val database: Database) : Items<Transaction> {
+
+    override fun <R> inTransaction(block: context(Transaction) () -> R): R =
+        transaction(database) {
+            block(this)
+        }
+
+    context(Transaction) override fun load(): Result<StockList, StockListLoadingError> =
         getLastUpdate()?.let { lastUpdate ->
             Success(StockList(lastUpdate, allItemsUpdatedAt(lastUpdate)))
         } ?: Success(StockList(Instant.EPOCH, emptyList()))
-    }
 
     private fun getLastUpdate() = Items
         .select(Items.modified.max())
@@ -39,19 +45,20 @@ internal class DatabaseItems(private val database: Database) : Items {
         .where { Items.modified eq lastUpdate }
         .map { it.toItem() }
 
-    override fun save(stockList: StockList): Result<StockList, StockListLoadingError.IO> =
-        transaction(database) {
-            stockList.items.forEach { item ->
-                Items.insert {
-                    it[id] = item.id.toString()
-                    it[modified] = stockList.lastModified
-                    it[name] = item.name.toString()
-                    it[sellByDate] = item.sellByDate
-                    it[quality] = item.quality.valueInt
-                }
+    context(Transaction) override fun save(
+        stockList: StockList,
+    ): Result<StockList, StockListLoadingError.IO> {
+        stockList.items.forEach { item ->
+            Items.insert {
+                it[id] = item.id.toString()
+                it[modified] = stockList.lastModified
+                it[name] = item.name.toString()
+                it[sellByDate] = item.sellByDate
+                it[quality] = item.quality.valueInt
             }
-            Success(stockList)
         }
+        return Success(stockList)
+    }
 
     object Items : Table() {
         val id: Column<String> = varchar("id", 100)
