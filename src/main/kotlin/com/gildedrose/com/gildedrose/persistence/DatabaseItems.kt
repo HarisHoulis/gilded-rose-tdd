@@ -35,7 +35,7 @@ internal class DatabaseItems(private val database: Database) : Items<Transaction
             Success(StockList(lastUpdate, allItemsUpdatedAt(lastUpdate)))
         } ?: Success(StockList(Instant.EPOCH, emptyList()))
 
-    private fun getLastUpdate() = Items
+    private fun getLastUpdate(): Instant? = Items
         .select(Items.modified.max())
         .firstOrNull()
         ?.getOrNull(Items.modified.max())
@@ -66,10 +66,6 @@ internal class DatabaseItems(private val database: Database) : Items<Transaction
         val name: Column<String> = varchar("name", 100)
         val sellByDate: Column<LocalDate?> = date("sellByDate").nullable()
         val quality: Column<Int> = integer("quality")
-    }
-
-    private fun Items.all() = selectAll().map {
-        it.toItem()
     }
 
     private fun ResultRow.toItem() = Item(
