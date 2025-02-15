@@ -1,6 +1,6 @@
 package com.gildedrose.persistence
 
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.Instant
@@ -17,25 +17,25 @@ class DaysToTests {
 
     @Test
     fun `no daylight savings in Jan`() {
-        Assertions.assertEquals(
+        assertEquals(
             0,
             time("2022-01-01T00:00:00Z").daysTo(time("2022-01-01T00:00:00Z"), london)
         )
 
-        Assertions.assertEquals(
+        assertEquals(
             0,
             time("2022-01-01T00:00:00Z").daysTo(time("2022-01-01T23:59:59Z"), london)
         )
-        Assertions.assertEquals(
+        assertEquals(
             0,
             time("2022-01-01T23:59:59Z").daysTo(time("2022-01-01T00:00:00Z"), london)
         )
 
-        Assertions.assertEquals(
+        assertEquals(
             1,
             time("2022-01-01T23:59:59Z").daysTo(time("2022-01-02T00:00:00Z"), london)
         )
-        Assertions.assertEquals(
+        assertEquals(
             -1,
             time("2022-01-02T00:00:00Z").daysTo(time("2022-01-01T23:59:59Z"), london)
         )
@@ -43,25 +43,25 @@ class DaysToTests {
 
     @Test
     fun `daylight savings in June`() {
-        Assertions.assertEquals(
+        assertEquals(
             0,
             time("2022-06-01T00:00:00Z").daysTo(time("2022-06-01T00:00:00Z"), london)
         )
 
-        Assertions.assertEquals(
+        assertEquals(
             1,
             time("2022-06-01T00:00:00Z").daysTo(time("2022-06-01T23:59:59Z"), london)
         )
-        Assertions.assertEquals(
+        assertEquals(
             -1,
             time("2022-06-01T23:59:59Z").daysTo(time("2022-06-01T00:00:00Z"), london)
         )
 
-        Assertions.assertEquals(
+        assertEquals(
             0,
             time("2022-06-01T23:59:59Z").daysTo(time("2022-06-02T00:00:00Z"), london)
         )
-        Assertions.assertEquals(
+        assertEquals(
             0,
             time("2022-06-02T00:00:00Z").daysTo(time("2022-06-01T23:59:59Z"), london)
         )
@@ -70,25 +70,25 @@ class DaysToTests {
     @Test
     fun `daylight savings June parsed as GMT+1`() {
         // Should have same results as January
-        Assertions.assertEquals(
+        assertEquals(
             0,
             time("2022-06-01T00:00:00+01:00").daysTo(time("2022-06-01T00:00:00+01:00"), london)
         )
 
-        Assertions.assertEquals(
+        assertEquals(
             0,
             time("2022-06-01T00:00:00+01:00").daysTo(time("2022-06-01T23:59:59+01:00"), london)
         )
-        Assertions.assertEquals(
+        assertEquals(
             0,
             time("2022-06-01T23:59:59+01:00").daysTo(time("2022-06-01T00:00:00+01:00"), london)
         )
 
-        Assertions.assertEquals(
+        assertEquals(
             1,
             time("2022-06-01T23:59:59+01:00").daysTo(time("2022-06-02T00:00:00+01:00"), london)
         )
-        Assertions.assertEquals(
+        assertEquals(
             -1,
             time("2022-06-02T00:00:00+01:00").daysTo(time("2022-06-01T23:59:59+01:00"), london)
         )
@@ -97,25 +97,25 @@ class DaysToTests {
     @Test
     fun `daylight savings June parsed as local`() {
         // Should have same results as January
-        Assertions.assertEquals(
+        assertEquals(
             0,
             local("2022-06-01T00:00:00").daysTo(local("2022-06-01T00:00:00"), london)
         )
 
-        Assertions.assertEquals(
+        assertEquals(
             0,
             local("2022-06-01T00:00:00").daysTo(local("2022-06-01T23:59:59"), london)
         )
-        Assertions.assertEquals(
+        assertEquals(
             0,
             local("2022-06-01T23:59:59").daysTo(local("2022-06-01T00:00:00"), london)
         )
 
-        Assertions.assertEquals(
+        assertEquals(
             1,
             local("2022-06-01T23:59:59").daysTo(local("2022-06-02T00:00:00"), london)
         )
-        Assertions.assertEquals(
+        assertEquals(
             -1,
             local("2022-06-02T00:00:00").daysTo(local("2022-06-01T23:59:59"), london)
         )
@@ -124,29 +124,29 @@ class DaysToTests {
     @Test
     fun `daylight savings transitions`() {
         // Times where how we interpret the time make a difference to the day
-        Assertions.assertEquals(
+        assertEquals(
             1,
             local("2022-10-29T23:59:59").daysTo(local("2022-10-30T00:00:01"), london)
         )
-        Assertions.assertEquals(
+        assertEquals(
             -1,
             local("2022-10-30T00:00:01").daysTo(local("2022-10-29T23:59:59"), london)
         )
 
-        Assertions.assertEquals(
+        assertEquals(
             1,
             local("2022-03-27T23:59:59").daysTo(local("2022-03-28T00:00:01"), london)
         )
-        Assertions.assertEquals(
+        assertEquals(
             -1,
             local("2022-03-28T00:00:01").daysTo(local("2022-03-27T23:59:59"), london)
         )
 
-        Assertions.assertEquals(
+        assertEquals(
             1,
             time("2022-03-27T22:59:59Z").daysTo(time("2022-03-27T23:00:01Z"), london)
         )
-        Assertions.assertEquals(
+        assertEquals(
             0,
             time("2022-03-27T23:00:01Z").daysTo(time("2022-03-28T00:00:00Z"), london)
         )
@@ -200,11 +200,11 @@ class DaysToTests {
                             val startInstant = startDateTime.toInstantIn(zoneId)
                             val endInstant = endDateTime.toInstantIn(zoneId)
 
-                            Assertions.assertEquals(
+                            assertEquals(
                                 plusDays,
                                 startInstant.daysTo(endInstant, zoneId)
                             )
-                            Assertions.assertEquals(
+                            assertEquals(
                                 -plusDays,
                                 endInstant.daysTo(startInstant, zoneId)
                             )
