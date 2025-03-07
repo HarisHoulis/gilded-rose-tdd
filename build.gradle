@@ -21,7 +21,7 @@ dependencies {
     implementation "org.http4k:http4k-client-apache"
     implementation "org.http4k:http4k-template-handlebars"
 
-    implementation("dev.forkhandles:result4k:2.20.0.0")
+    implementation("dev.forkhandles:result4k:2.22.0.0")
 
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion"
